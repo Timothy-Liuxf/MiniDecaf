@@ -75,8 +75,9 @@ struct RiscvReg {
  *
  * NOTE:
  *   1. it represents only the instructions used inside a basic block
- *   2. not all instructions are modeled (e.g. floting-point arithmetic instructions)
- * 
+ *   2. not all instructions are modeled (e.g. floting-point arithmetic
+ * instructions)
+ *
  */
 struct RiscvInstr : public Instr {
 
@@ -93,6 +94,8 @@ struct RiscvInstr : public Instr {
         LI,
         SW,
         MOVE,
+        LNOT,
+        BNOT
         // You could add other instructions/pseudo instructions here
     } op_code; // operation code
 
@@ -132,7 +135,7 @@ class RiscvDesc : public MachineDesc {
     RiscvStackFrameManager *_frame;
     // label counter for allocating new labels
     int _label_counter;
-    
+
     // allocates a new label
     const char *getNewLabel(void);
     // translates the tac_chain of a basic block into the instr_chain
@@ -161,10 +164,8 @@ class RiscvDesc : public MachineDesc {
     void addInstr(RiscvInstr::OpCode, RiscvReg *, RiscvReg *, RiscvReg *, int,
                   std::string, const char *);
 
-
     /*** sketch for peephole optimizer (inside a basic block) ***/
     void simplePeephole(RiscvInstr *);
-
 
     /*** the register allocator ***/
     RiscvReg *_reg[RiscvReg::TOTAL_NUM]; // registers of a machine
@@ -186,7 +187,6 @@ class RiscvDesc : public MachineDesc {
     /*** regs for riscv standard call ***/
     void passParamReg(tac::Tac *t, int cnt);
     void getParamReg(tac::Tac *t, int cnt);
-
 };
 
 } // namespace assembly

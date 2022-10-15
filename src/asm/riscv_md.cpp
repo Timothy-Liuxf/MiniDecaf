@@ -47,7 +47,7 @@ RiscvDesc::RiscvDesc(void) {
     // {GLOBAL, LOCAL, PARAMETER}
     // Actually, we only use the parameter offset counter,
     // other two options are remained for extension
-    int start[3] = {0, 0, 0}; 
+    int start[3] = {0, 0, 0};
     int dir[3] = {+1, -1, +1};
     _counter = new OffsetCounter(start, dir);
 
@@ -213,7 +213,8 @@ RiscvInstr *RiscvDesc::prepareSingleChain(BasicBlock *b, FlowGraph *g) {
 void RiscvDesc::emitTac(Tac *t) {
     std::ostringstream oss;
     t->dump(oss);
-    addInstr(RiscvInstr::COMMENT, NULL, NULL, NULL, 0, EMPTY_STR, oss.str().c_str() + 4);
+    addInstr(RiscvInstr::COMMENT, NULL, NULL, NULL, 0, EMPTY_STR,
+             oss.str().c_str() + 4);
 
     switch (t->op_code) {
     case Tac::LOAD_IMM4:
@@ -223,7 +224,15 @@ void RiscvDesc::emitTac(Tac *t) {
     case Tac::NEG:
         emitUnaryTac(RiscvInstr::NEG, t);
         break;
-    
+
+    case Tac::LNOT:
+        emitUnaryTac(RiscvInstr::LNOT, t);
+        break;
+
+    case Tac::BNOT:
+        emitUnaryTac(RiscvInstr::BNOT, t);
+        break;
+
     case Tac::ADD:
         emitBinaryTac(RiscvInstr::ADD, t);
         break;
@@ -275,7 +284,7 @@ void RiscvDesc::emitBinaryTac(RiscvInstr::OpCode op, Tac *t) {
     if (!t->LiveOut->contains(t->op0.var))
         return;
 
-    Set<Temp>* liveness = t->LiveOut->clone();
+    Set<Temp> *liveness = t->LiveOut->clone();
     liveness->add(t->op1.var);
     liveness->add(t->op2.var);
     int r1 = getRegForRead(t->op1.var, 0, liveness);
@@ -323,18 +332,19 @@ void RiscvDesc::passParamReg(Tac *t, int cnt) {
     // RISC-V use a0-a7 to pass the first 8 parameters, so it's ok to do so.
     spillReg(RiscvReg::A0 + cnt, t->LiveOut);
     int i = lookupReg(t->op0.var);
-    if(i < 0) {
+    if (i < 0) {
         auto v = t->op0.var;
         RiscvReg *base = _reg[RiscvReg::FP];
         oss << "load " << v << " from (" << base->name
             << (v->offset < 0 ? "" : "+") << v->offset << ") into "
             << _reg[RiscvReg::A0 + cnt]->name;
-        addInstr(RiscvInstr::LW, _reg[RiscvReg::A0 + cnt], base, NULL, v->offset, EMPTY_STR,
-                    oss.str().c_str());
+        addInstr(RiscvInstr::LW, _reg[RiscvReg::A0 + cnt], base, NULL,
+                 v->offset, EMPTY_STR, oss.str().c_str());
     } else {
-        oss << "copy " << _reg[i]->name << " to " << _reg[RiscvReg::A0 + cnt]->name;
+        oss << "copy " << _reg[i]->name << " to "
+            << _reg[RiscvReg::A0 + cnt]->name;
         addInstr(RiscvInstr::MOVE, _reg[RiscvReg::A0 + cnt], _reg[i], NULL, 0,
-                    EMPTY_STR, oss.str().c_str());
+                 EMPTY_STR, oss.str().c_str());
     }
 }
 
@@ -392,7 +402,8 @@ void RiscvDesc::emitFuncty(Functy f) {
         return;
     }
 
-    mind_assert(!f->entry->str_form.empty()); // this assertion should hold for every Functy
+    mind_assert(!f->entry->str_form
+                     .empty()); // this assertion should hold for every Functy
     // outputs the header of a function
     emitProlog(f->entry, _frame->getStackFrameSize());
     // chains up the assembly code of every basic block and output.
@@ -430,7 +441,8 @@ void RiscvDesc::emitProlog(Label entry_label, int frame_size) {
     emit(EMPTY_STR, "sw    fp, -8(sp)", NULL); // saves return address
     // establishes new stack frame (new context)
     emit(EMPTY_STR, "mv    fp, sp", NULL);
-    oss << "addi  sp, sp, -" << (frame_size + 2 * WORD_SIZE); // 2 WORD's for old $fp and $ra
+    oss << "addi  sp, sp, -"
+        << (frame_size + 2 * WORD_SIZE); // 2 WORD's for old $fp and $ra
     emit(EMPTY_STR, oss.str().c_str(), NULL);
 }
 
@@ -458,6 +470,14 @@ void RiscvDesc::emitInstr(RiscvInstr *i) {
         oss << "neg" << i->r0->name << ", " << i->r1->name;
         break;
 
+    case RiscvInstr::LNOT:
+        oss << "seqz" << i->r0->name << ", " << i->r1->name;
+        break;
+
+    case RiscvInstr::BNOT:
+        oss << "not" << i->r0->name << ", " << i->r1->name;
+        break;
+
     case RiscvInstr::MOVE:
         oss << "mv" << i->r0->name << ", " << i->r1->name;
         break;
@@ -469,15 +489,16 @@ void RiscvDesc::emitInstr(RiscvInstr *i) {
     case RiscvInstr::SW:
         oss << "sw" << i->r0->name << ", " << i->i << "(" << i->r1->name << ")";
         break;
-    
+
     case RiscvInstr::RET:
         oss << "ret";
         break;
-    
+
     case RiscvInstr::ADD:
-        oss << "add" << i->r0->name << ", " << i->r1->name << ", " << i->r2->name;
+        oss << "add" << i->r0->name << ", " << i->r1->name << ", "
+            << i->r2->name;
         break;
-    
+
     case RiscvInstr::BEQZ:
         oss << "beqz" << i->r0->name << ", " << i->l;
         break;
@@ -559,7 +580,6 @@ void RiscvDesc::addInstr(RiscvInstr::OpCode op_code, RiscvReg *r0, RiscvReg *r1,
     _tail->comment = cmt;
 }
 
-
 /******************** a simple peephole optimizer *********************/
 
 /* Performs a peephole optimization pass to the instruction sequence.
@@ -570,7 +590,6 @@ void RiscvDesc::addInstr(RiscvInstr::OpCode op_code, RiscvReg *r0, RiscvReg *r1,
 void RiscvDesc::simplePeephole(RiscvInstr *iseq) {
     // if you are interested in peephole optimization, you can implement here
     // of course, beyond our requirements
-    
 }
 
 /******************* REGISTER ALLOCATOR ***********************/

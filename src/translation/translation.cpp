@@ -4,7 +4,7 @@
  *  In the third pass, we will:
  *    translate all the statements and expressions
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "translation.hpp"
@@ -74,7 +74,6 @@ void Translation::visit(ast::FuncDefn *f) {
     tr->startFunc(fun);
 
     // You may process params here, i.e use reg or stack to pass parameters
-
 
     // translates statement by statement
     for (auto it = f->stmts->begin(); it != f->stmts->end(); ++it)
@@ -177,6 +176,22 @@ void Translation::visit(ast::NegExpr *e) {
     e->e->accept(this);
 
     e->ATTR(val) = tr->genNeg(e->e->ATTR(val));
+}
+
+/* Translating an ast::NotExpr node.
+ */
+void Translation::visit(ast::NotExpr *e) {
+    e->e->accept(this);
+
+    e->ATTR(val) = tr->genLNot(e->e->ATTR(val));
+}
+
+/* Translating an ast::BitNotExpr node.
+ */
+void Translation::visit(ast::BitNotExpr *e) {
+    e->e->accept(this);
+
+    e->ATTR(val) = tr->genBNot(e->e->ATTR(val));
 }
 
 /* Translating an ast::LvalueExpr node.

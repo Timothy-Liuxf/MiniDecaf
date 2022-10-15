@@ -6,7 +6,7 @@
  *    2. FuncScope   - the scope governed by a function definition
  *    3. LocalScope  - a local scope
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_SCOPE__

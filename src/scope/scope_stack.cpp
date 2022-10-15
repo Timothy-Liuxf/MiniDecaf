@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of "ScopeStack".
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "scope/scope_stack.hpp"

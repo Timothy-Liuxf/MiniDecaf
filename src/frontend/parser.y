@@ -96,6 +96,7 @@ void scan_end();
 %nterm<mind::ast::Type*> Type
 %nterm<mind::ast::Statement*> Stmt  ReturnStmt ExprStmt IfStmt  CompStmt WhileStmt 
 %nterm<mind::ast::Expr*> Expr
+%nterm<mind::ast::Expr*> UnaryExpr
 /*   SUBSECTION 2.2: associativeness & precedences */
 %nonassoc QUESTION
 %left     OR
@@ -183,10 +184,15 @@ Expr        : ICONST
                 { $$ = new ast::AddExpr($1, $3, POS(@2)); }
             | Expr QUESTION Expr COLON Expr
                 { $$ = new ast::IfExpr($1,$3,$5,POS(@2)); }
-            | MINUS Expr  %prec NEG
-                { $$ = new ast::NegExpr($2, POS(@1)); }
+            | UnaryExpr
             ;
-
+UnaryExpr   : MINUS Expr  %prec NEG
+                { $$ = new ast::NegExpr($2, POS(@1)); }
+            | LNOT Expr
+                { $$ = new ast::NotExpr($2, POS(@1)); }
+            | BNOT Expr
+                { $$ = new ast::BitNotExpr($2, POS(@1)); }
+            ;
 %%
 
 /* SECTION IV: customized section */
