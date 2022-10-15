@@ -96,6 +96,10 @@ void scan_end();
 %nterm<mind::ast::Type*> Type
 %nterm<mind::ast::Statement*> Stmt  ReturnStmt ExprStmt IfStmt  CompStmt WhileStmt 
 %nterm<mind::ast::Expr*> Expr
+%nterm<mind::ast::Expr*> LogicalOrExpr
+%nterm<mind::ast::Expr*> LogicalAndExpr
+%nterm<mind::ast::Expr*> EqualityExpr
+%nterm<mind::ast::Expr*> RationalExpr
 %nterm<mind::ast::Expr*> AdditiveExpr
 %nterm<mind::ast::Expr*> MultiplicativeExpr
 %nterm<mind::ast::Expr*> UnaryExpr
@@ -180,9 +184,33 @@ ExprStmt    : Expr SEMICOLON
                 { $$ = new ast::ExprStmt($1, POS(@1)); } 
             ;         
 Expr        : Expr QUESTION Expr COLON Expr
-                { $$ = new ast::IfExpr($1,$3,$5,POS(@2)); }
-            | AdditiveExpr
+                { $$ = new ast::IfExpr($1, $3, $5, POS(@2)); }
+            | LogicalOrExpr
             ;
+LogicalOrExpr       : LogicalAndExpr
+                    | LogicalOrExpr OR LogicalAndExpr
+                        { $$ = new ast::OrExpr($1, $3, POS(@2)); }
+                    ;
+LogicalAndExpr      : EqualityExpr
+                    | LogicalAndExpr AND EqualityExpr
+                        { $$ = new ast::AndExpr($1, $3, POS(@2)); }
+                    ;
+EqualityExpr        : RationalExpr
+                    | EqualityExpr EQU RationalExpr
+                        { $$ = new ast::EquExpr($1, $3, POS(@2)); }
+                    | EqualityExpr NEQ RationalExpr
+                        { $$ = new ast::NeqExpr($1, $3, POS(@2)); }
+                    ;
+RationalExpr        : AdditiveExpr
+                    | RationalExpr LT AdditiveExpr
+                        { $$ = new ast::LesExpr($1, $3, POS(@2)); }
+                    | RationalExpr GT AdditiveExpr
+                        { $$ = new ast::GrtExpr($1, $3, POS(@2)); }
+                    | RationalExpr LEQ AdditiveExpr
+                        { $$ = new ast::LeqExpr($1, $3, POS(@2)); }
+                    | RationalExpr GEQ AdditiveExpr
+                        { $$ = new ast::GeqExpr($1, $3, POS(@2)); }
+                    ;
 AdditiveExpr        : MultiplicativeExpr
                     | AdditiveExpr PLUS MultiplicativeExpr
                         { $$ = new ast::AddExpr($1, $3, POS(@2)); }

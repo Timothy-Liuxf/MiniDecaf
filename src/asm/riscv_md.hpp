@@ -99,7 +99,15 @@ struct RiscvInstr : public Instr {
         SUB,
         MUL,
         DIV,
-        MOD
+        MOD,
+        LOR,
+        LAND,
+        EQU,
+        NEQ,
+        LES,
+        GTR,
+        LEQ,
+        GEQ,
         // You could add other instructions/pseudo instructions here
     } op_code; // operation code
 

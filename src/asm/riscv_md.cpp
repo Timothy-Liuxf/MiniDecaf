@@ -253,6 +253,38 @@ void RiscvDesc::emitTac(Tac *t) {
         emitBinaryTac(RiscvInstr::MOD, t);
         break;
 
+    case Tac::LOR:
+        emitBinaryTac(RiscvInstr::LOR, t);
+        break;
+
+    case Tac::LAND:
+        emitBinaryTac(RiscvInstr::LAND, t);
+        break;
+
+    case Tac::EQU:
+        emitBinaryTac(RiscvInstr::EQU, t);
+        break;
+
+    case Tac::NEQ:
+        emitBinaryTac(RiscvInstr::NEQ, t);
+        break;
+
+    case Tac::LES:
+        emitBinaryTac(RiscvInstr::LES, t);
+        break;
+
+    case Tac::GTR:
+        emitBinaryTac(RiscvInstr::GTR, t);
+        break;
+
+    case Tac::LEQ:
+        emitBinaryTac(RiscvInstr::LEQ, t);
+        break;
+
+    case Tac::GEQ:
+        emitBinaryTac(RiscvInstr::GEQ, t);
+        break;
+
     default:
         mind_assert(false); // should not appear inside a basic block
     }
@@ -472,6 +504,11 @@ void RiscvDesc::emitInstr(RiscvInstr *i) {
         return;
     std::ostringstream oss;
     oss << std::left << std::setw(6);
+    auto emitInstImpl = [&] {
+        emit(EMPTY_STR, oss.str().c_str(), NULL);
+        oss.str("");
+        oss << std::left << std::setw(6);
+    };
 
     switch (i->op_code) {
     case RiscvInstr::COMMENT:
@@ -533,6 +570,59 @@ void RiscvDesc::emitInstr(RiscvInstr *i) {
     case RiscvInstr::MOD:
         oss << "rem" << i->r0->name << ", " << i->r1->name << ", "
             << i->r2->name;
+        break;
+
+    case RiscvInstr::LOR:
+        oss << "or" << i->r0->name << ", " << i->r1->name << ", "
+            << i->r2->name;
+        emitInstImpl();
+        oss << "snez" << i->r0->name << ", " << i->r0->name;
+        break;
+
+    case RiscvInstr::LAND:
+        oss << "seqz" << i->r0->name << ", " << i->r1->name;
+        emitInstImpl();
+        oss << "seqz" << i->r0->name << ", " << i->r2->name;
+        emitInstImpl();
+        oss << "seqz" << i->r0->name << ", " << i->r0->name;
+        break;
+
+    case RiscvInstr::EQU:
+        oss << "sub" << i->r0->name << ", " << i->r1->name << ", "
+            << i->r2->name;
+        emitInstImpl();
+        oss << "seqz" << i->r0->name << ", " << i->r0->name;
+        break;
+
+    case RiscvInstr::NEQ:
+        oss << "sub" << i->r0->name << ", " << i->r1->name << ", "
+            << i->r2->name;
+        emitInstImpl();
+        oss << "snez" << i->r0->name << ", " << i->r0->name;
+        break;
+
+    case RiscvInstr::LES:
+        oss << "slt" << i->r0->name << ", " << i->r1->name << ", "
+            << i->r2->name;
+        break;
+
+    case RiscvInstr::GTR:
+        oss << "sgt" << i->r0->name << ", " << i->r1->name << ", "
+            << i->r2->name;
+        break;
+
+    case RiscvInstr::LEQ:
+        oss << "sgt" << i->r0->name << ", " << i->r1->name << ", "
+            << i->r2->name;
+        emitInstImpl();
+        oss << "seqz" << i->r0->name << ", " << i->r0->name;
+        break;
+
+    case RiscvInstr::GEQ:
+        oss << "slt" << i->r0->name << ", " << i->r1->name << ", "
+            << i->r2->name;
+        emitInstImpl();
+        oss << "seqz" << i->r0->name << ", " << i->r0->name;
         break;
 
     case RiscvInstr::BEQZ:
