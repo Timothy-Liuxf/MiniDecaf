@@ -95,7 +95,11 @@ struct RiscvInstr : public Instr {
         SW,
         MOVE,
         LNOT,
-        BNOT
+        BNOT,
+        SUB,
+        MUL,
+        DIV,
+        MOD
         // You could add other instructions/pseudo instructions here
     } op_code; // operation code
 

@@ -96,7 +96,10 @@ void scan_end();
 %nterm<mind::ast::Type*> Type
 %nterm<mind::ast::Statement*> Stmt  ReturnStmt ExprStmt IfStmt  CompStmt WhileStmt 
 %nterm<mind::ast::Expr*> Expr
+%nterm<mind::ast::Expr*> AdditiveExpr
+%nterm<mind::ast::Expr*> MultiplicativeExpr
 %nterm<mind::ast::Expr*> UnaryExpr
+%nterm<mind::ast::Expr*> PrimaryExpr
 /*   SUBSECTION 2.2: associativeness & precedences */
 %nonassoc QUESTION
 %left     OR
@@ -176,23 +179,36 @@ ReturnStmt  : RETURN Expr SEMICOLON
 ExprStmt    : Expr SEMICOLON
                 { $$ = new ast::ExprStmt($1, POS(@1)); } 
             ;         
-Expr        : ICONST
+Expr        : Expr QUESTION Expr COLON Expr
+                { $$ = new ast::IfExpr($1,$3,$5,POS(@2)); }
+            | AdditiveExpr
+            ;
+AdditiveExpr        : MultiplicativeExpr
+                    | AdditiveExpr PLUS MultiplicativeExpr
+                        { $$ = new ast::AddExpr($1, $3, POS(@2)); }
+                    | AdditiveExpr MINUS MultiplicativeExpr
+                        { $$ = new ast::SubExpr($1, $3, POS(@2)); }
+                    ;
+MultiplicativeExpr  : UnaryExpr
+                    | MultiplicativeExpr TIMES UnaryExpr
+                        { $$ = new ast::MulExpr($1, $3, POS(@2)); }
+                    | MultiplicativeExpr SLASH UnaryExpr
+                        { $$ = new ast::DivExpr($1, $3, POS(@2)); }
+                    | MultiplicativeExpr MOD UnaryExpr
+                        { $$ = new ast::ModExpr($1, $3, POS(@2)); }
+                    ;
+UnaryExpr   : PrimaryExpr
+            | MINUS UnaryExpr  %prec NEG
+                { $$ = new ast::NegExpr($2, POS(@1)); }
+            | LNOT UnaryExpr
+                { $$ = new ast::NotExpr($2, POS(@1)); }
+            | BNOT UnaryExpr
+                { $$ = new ast::BitNotExpr($2, POS(@1)); }
+            ;
+PrimaryExpr : ICONST
                 { $$ = new ast::IntConst($1, POS(@1)); }            
             | LPAREN Expr RPAREN
                 { $$ = $2; }
-            | Expr PLUS Expr
-                { $$ = new ast::AddExpr($1, $3, POS(@2)); }
-            | Expr QUESTION Expr COLON Expr
-                { $$ = new ast::IfExpr($1,$3,$5,POS(@2)); }
-            | UnaryExpr
-            ;
-UnaryExpr   : MINUS Expr  %prec NEG
-                { $$ = new ast::NegExpr($2, POS(@1)); }
-            | LNOT Expr
-                { $$ = new ast::NotExpr($2, POS(@1)); }
-            | BNOT Expr
-                { $$ = new ast::BitNotExpr($2, POS(@1)); }
-            ;
 %%
 
 /* SECTION IV: customized section */
