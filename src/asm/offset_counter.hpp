@@ -1,8 +1,7 @@
 /*****************************************************
  *  Offset Counter.
- * 
+ *
  */
-
 
 #ifndef __MIND_OFFSETCOUNTER__
 #define __MIND_OFFSETCOUNTER__

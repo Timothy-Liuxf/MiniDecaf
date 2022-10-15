@@ -32,7 +32,8 @@ class MachineDesc {
     // gets the offset counter for this machine
     virtual OffsetCounter *getOffsetCounter(void) = 0;
     // translates Tac sequences into assembly code (and output)
-    virtual void emitPieces(scope::GlobalScope *, tac::Piece *, std::ostream &) = 0;
+    virtual void emitPieces(scope::GlobalScope *, tac::Piece *,
+                            std::ostream &) = 0;
     // destructor
     virtual ~MachineDesc() {}
 };

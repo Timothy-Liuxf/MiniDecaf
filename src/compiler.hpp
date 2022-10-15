@@ -1,7 +1,7 @@
 /*****************************************************
  *  MindCompiler class.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_COMPILER__

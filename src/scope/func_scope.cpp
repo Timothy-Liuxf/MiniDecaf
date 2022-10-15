@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of "FuncScope".
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "3rdparty/vector.hpp"

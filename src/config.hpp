@@ -12,7 +12,7 @@
  *    7. forward declaration of most classes;
  *    8. boehm garbage collector support.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_CONFIG__

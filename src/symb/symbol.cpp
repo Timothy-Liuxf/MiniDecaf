@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of the "Symbol" abstract class.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "symb/symbol.hpp"

@@ -3,7 +3,7 @@
  *
  *  NOTE: just treat it like std::vector.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_VECTOR__
@@ -15,14 +15,13 @@
 
 namespace mind {
 
-  namespace util {
+namespace util {
 
-	// Vector (garbage-collectable version)
-	template <typename _T>
-	class Vector : public std::vector<_T, gc_allocator<_T> > {
-	};
+// Vector (garbage-collectable version)
+template <typename _T>
+class Vector : public std::vector<_T, gc_allocator<_T>> {};
 
-  }  
-}
+} // namespace util
+} // namespace mind
 
 #endif // __MIND_VECTOR__

@@ -1,10 +1,12 @@
 /*****************************************************
  *  Definition of "BasicBlock" and "FlowGraph".
  *  The flow graph and dataflow analysis part are almost finished,
- *  if you want to learn dataflow analysis with codes, please refer to codes here.
- * 
- *  Of course, if you add some new Tacs, 
- *  you are supposed to update the codes at line 38 and line 176 in tac/dataflow.cpp
+ *  if you want to learn dataflow analysis with codes, please refer to codes
+ * here.
+ *
+ *  Of course, if you add some new Tacs,
+ *  you are supposed to update the codes at line 38 and line 176 in
+ * tac/dataflow.cpp
  */
 
 #ifndef __MIND_FLOWGRAPH__
@@ -53,13 +55,17 @@ struct BasicBlock {
 
     Tac *tac_chain; // the associated TAC sequence fragment
 
-    assembly::Instr *instr_chain; // for ASM code generation: the associated assembly code sequence
-    const char *entry_label; // for ASM code generation: the associated entry label in assembly code
+    assembly::Instr *instr_chain; // for ASM code generation: the associated
+                                  // assembly code sequence
+    const char *entry_label; // for ASM code generation: the associated entry
+                             // label in assembly code
 
     util::Set<Temp> *Def; // the DEF set: ALL variables defined in this block
-    util::Set<Temp> *LiveUse; // the LiveUSE set: all used-before-defined variables
+    util::Set<Temp>
+        *LiveUse; // the LiveUSE set: all used-before-defined variables
     util::Set<Temp> *LiveIn; // the LiveIn set: all variables alive at the entry
-    util::Set<Temp> *LiveOut; // the LiveOut set: all variables alive at the exit
+    util::Set<Temp>
+        *LiveOut; // the LiveOut set: all variables alive at the exit
 
     // constructor
     BasicBlock();

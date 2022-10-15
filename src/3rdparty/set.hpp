@@ -55,7 +55,7 @@
  *
  *	  bool equal(const Set<_T>* s)
  *      - tests whether this set is equal to the given set
- *	  
+ *
  *    iterator begin(void)
  *      - gets the begin iterator
  *
@@ -68,7 +68,7 @@
  *    const_iterator end(void) const
  *      - gets the end const iterator
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_SET__
@@ -80,175 +80,162 @@
 
 namespace mind {
 
-  namespace util {
+namespace util {
 
-	template <typename _T>
-	class Set {
-	private:
-	  size_t _size;
-	  size_t _capacity;
-	  _T*    _container;
+template <typename _T> class Set {
+  private:
+    size_t _size;
+    size_t _capacity;
+    _T *_container;
 
-	  void   _ensureCapacity(void) {
-		if (_size + 3 < _capacity/2)
-		  _capacity = _size + 3;
-		else if (_size >= _capacity)
-		  _capacity = _size*2 + 3;
-		else
-		  return;
+    void _ensureCapacity(void) {
+        if (_size + 3 < _capacity / 2)
+            _capacity = _size + 3;
+        else if (_size >= _capacity)
+            _capacity = _size * 2 + 3;
+        else
+            return;
 
-		_T* new_container = new _T[_capacity];
-		std::copy(_container, _container+_size, new_container);
-		if (NULL != _container)
-		  delete[] _container;
-		_container = new_container;
-	  }
-	  
-	public:
-	  typedef _T*           iterator;
-	  typedef const _T*     const_iterator;
-	  typedef Set<_T>       set_type;
+        _T *new_container = new _T[_capacity];
+        std::copy(_container, _container + _size, new_container);
+        if (NULL != _container)
+            delete[] _container;
+        _container = new_container;
+    }
 
-	  Set() {
-		_size = 0;
-		_capacity = 3;
-		_container = new _T[_capacity];
-	  }
+  public:
+    typedef _T *iterator;
+    typedef const _T *const_iterator;
+    typedef Set<_T> set_type;
 
-	  Set(size_t capacity) {
-		_size = 0;
-		_capacity = std::max(capacity, 3ul);
-		_container = new _T[_capacity];
-	  }
+    Set() {
+        _size = 0;
+        _capacity = 3;
+        _container = new _T[_capacity];
+    }
 
-	  Set(const _T e) {
-		_size = 1;
-		_capacity = 3;
-		_container = new _T[_capacity];
-		_container[0] = e;
-	  }
+    Set(size_t capacity) {
+        _size = 0;
+        _capacity = std::max(capacity, 3ul);
+        _container = new _T[_capacity];
+    }
 
-	  Set(const set_type& s) {
-		_size = s._size;
-		_capacity = s._capacity;
-		_container = new _T[_capacity];
-		std::copy(s.begin(), s.end(), begin());
-	  }
+    Set(const _T e) {
+        _size = 1;
+        _capacity = 3;
+        _container = new _T[_capacity];
+        _container[0] = e;
+    }
 
-	  ~Set() {
-		if (NULL != _container)
-		  delete[] _container;
-	  }
+    Set(const set_type &s) {
+        _size = s._size;
+        _capacity = s._capacity;
+        _container = new _T[_capacity];
+        std::copy(s.begin(), s.end(), begin());
+    }
 
-	  size_t size(void) const {
-		return _size;
-	  }
-	  
-	  void add(const _T e) {
-		if (! contains(e)) {
-		  _ensureCapacity();
-		  
-		  int i = _size - 1;
-		  while (i >= 0 && e < _container[i]) {
-			_container[i+1] = _container[i];
-			-- i;
-		  }
-		  
-		  _container[i+1] = e;
-		  ++ _size;
-		}
-	  }
+    ~Set() {
+        if (NULL != _container)
+            delete[] _container;
+    }
 
-	  void remove(const _T e) {
-		_T* p = std::lower_bound(begin(), end(), e);
+    size_t size(void) const { return _size; }
 
-		if (*p == e) {
-		  std::copy(p+1, end(), p);
-		  --_size;
-		}
-	  }
+    void add(const _T e) {
+        if (!contains(e)) {
+            _ensureCapacity();
 
-	  bool empty(void) const {
-		return (0 == _size);
-	  }
-	  
-	  bool contains(const _T e) const {
-		const _T* p = std::lower_bound(begin(), end(), e);
+            int i = _size - 1;
+            while (i >= 0 && e < _container[i]) {
+                _container[i + 1] = _container[i];
+                --i;
+            }
 
-		return (*p == e);
-	  }
+            _container[i + 1] = e;
+            ++_size;
+        }
+    }
 
-	  void clear(void) {
-		_size = 0;
-		// we don't release the memory here
-	  }
+    void remove(const _T e) {
+        _T *p = std::lower_bound(begin(), end(), e);
 
-	  set_type* unionWith(const set_type* s) const {
-		set_type* tmp = new set_type(_size + s->_size + 3);
+        if (*p == e) {
+            std::copy(p + 1, end(), p);
+            --_size;
+        }
+    }
 
-		iterator i = std::set_union(begin(), end(), s->begin(), s->end(), tmp->begin());
-		tmp->_size = i - tmp->begin();
-		tmp->_ensureCapacity();  // may reduce the capacity
+    bool empty(void) const { return (0 == _size); }
 
-		return tmp;
-	  }
+    bool contains(const _T e) const {
+        const _T *p = std::lower_bound(begin(), end(), e);
 
-	  set_type* intersectionWith(const set_type* s) const {
-		set_type* tmp = new set_type(std::min(_size, s->_size) + 3);
+        return (*p == e);
+    }
 
-		iterator i = std::set_intersection(begin(), end(), s->begin(), s->end(), tmp->begin());
-		tmp->_size = i - tmp->begin();
-		tmp->_ensureCapacity();  // may reduce the capacity
+    void clear(void) {
+        _size = 0;
+        // we don't release the memory here
+    }
 
-		return tmp;
-	  }
+    set_type *unionWith(const set_type *s) const {
+        set_type *tmp = new set_type(_size + s->_size + 3);
 
-	  set_type* differenceFrom(const set_type* s) const {
-		set_type* tmp = new set_type(_size + 3);
+        iterator i =
+            std::set_union(begin(), end(), s->begin(), s->end(), tmp->begin());
+        tmp->_size = i - tmp->begin();
+        tmp->_ensureCapacity(); // may reduce the capacity
 
-		iterator i = std::set_difference(begin(), end(), s->begin(), s->end(), tmp->begin());
-		tmp->_size = i - tmp->begin();
-		tmp->_ensureCapacity();  // may reduce the capacity
+        return tmp;
+    }
 
-		return tmp;
-	  }
+    set_type *intersectionWith(const set_type *s) const {
+        set_type *tmp = new set_type(std::min(_size, s->_size) + 3);
 
-	  set_type* clone(void) {
-		return new set_type(*this);
-	  }
+        iterator i = std::set_intersection(begin(), end(), s->begin(), s->end(),
+                                           tmp->begin());
+        tmp->_size = i - tmp->begin();
+        tmp->_ensureCapacity(); // may reduce the capacity
 
-	  bool equal(const set_type* s) {
-		if (_size != s->_size) {
-		  return false;
-		  
-		} else {
-		  for (size_t i=0; i<_size; ++i)
-			if (_container[i] != s->_container[i])
-			  return false;
+        return tmp;
+    }
 
-		  return true;
-		}
-	  }
-	  
-	  iterator begin(void) {
-		return _container;
-	  }
-	  
-	  iterator end(void) {
-		return (_container + _size);
-	  }
+    set_type *differenceFrom(const set_type *s) const {
+        set_type *tmp = new set_type(_size + 3);
 
-	  const_iterator begin(void) const {
-		return _container;
-	  }
+        iterator i = std::set_difference(begin(), end(), s->begin(), s->end(),
+                                         tmp->begin());
+        tmp->_size = i - tmp->begin();
+        tmp->_ensureCapacity(); // may reduce the capacity
 
-	  const_iterator end(void) const {
-		return (_container + _size);
-	  }
+        return tmp;
+    }
 
-	};
+    set_type *clone(void) { return new set_type(*this); }
 
-  }  
-}
+    bool equal(const set_type *s) {
+        if (_size != s->_size) {
+            return false;
+
+        } else {
+            for (size_t i = 0; i < _size; ++i)
+                if (_container[i] != s->_container[i])
+                    return false;
+
+            return true;
+        }
+    }
+
+    iterator begin(void) { return _container; }
+
+    iterator end(void) { return (_container + _size); }
+
+    const_iterator begin(void) const { return _container; }
+
+    const_iterator end(void) const { return (_container + _size); }
+};
+
+} // namespace util
+} // namespace mind
 
 #endif // __MIND_SET__

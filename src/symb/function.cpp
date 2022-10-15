@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of "Function".
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "config.hpp"

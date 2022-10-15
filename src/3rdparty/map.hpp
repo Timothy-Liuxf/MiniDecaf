@@ -3,7 +3,7 @@
  *
  *  NOTE: just treat it like std::map && hash_map.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_MAP__
@@ -15,16 +15,15 @@
 
 namespace mind {
 
-  namespace util {
+namespace util {
 
-	// Red-black Tree Map (garbage-collectable version)
-	template <typename _K, typename _T, typename _C =std::less<_K> >
-	class TreeMap : public std::map<_K, _T, _C, gc_allocator<_T> > {
-	};
+// Red-black Tree Map (garbage-collectable version)
+template <typename _K, typename _T, typename _C = std::less<_K>>
+class TreeMap : public std::map<_K, _T, _C, gc_allocator<_T>> {};
 
-	// We put the definition of HashMap in 3rdparty/hash.hpp
-	
-  }  
-}
+// We put the definition of HashMap in 3rdparty/hash.hpp
+
+} // namespace util
+} // namespace mind
 
 #endif // __MIND_MAP__

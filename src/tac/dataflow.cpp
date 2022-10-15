@@ -5,8 +5,8 @@
  *  1. BasicBlock::computeDefAndLiveUse
  *  2. FlowGraph::analyzeLiveness
  *  3. BasicBlock::analysisLiveness
- * 
- *  Of course, if you add some new Tacs, 
+ *
+ *  Of course, if you add some new Tacs,
  *  you are supposed to update the codes at line 38 and line 176.
  *
  */

@@ -4,7 +4,7 @@
  *  This file also contains the implementation of
  *  "SocopeIterator".
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "scope/scope.hpp"

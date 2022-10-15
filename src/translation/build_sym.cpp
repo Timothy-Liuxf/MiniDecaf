@@ -9,7 +9,7 @@
  *  After this pass, the ATTR(sym) or ATTR(type) attributs of the visited nodes
  *  should have been set.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "ast/ast.hpp"

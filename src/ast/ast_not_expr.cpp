@@ -3,7 +3,7 @@
  *
  *  Please refer to ast/ast.hpp for the definition.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "ast/ast.hpp"

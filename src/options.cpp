@@ -4,7 +4,7 @@
  *  If you'd like to see the option description, please
  *  look for "showUsage()" function in options.cpp.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "options.hpp"

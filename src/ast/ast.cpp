@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of the "ASTNode" abstract class.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "ast/ast.hpp"
@@ -16,45 +16,16 @@ using namespace mind::ast;
  *
  *  NOTE: The order of node_name's must be the same with that of NodeType's.
  */
-const char *ASTNode::node_name[] = {"add",
-                                    "and",
-                                    "assign",
-                                    "bconst",
-                                    "bitnot",
+const char *ASTNode::node_name[] = {
+    "add",     "and",    "assign", "bconst", "bitnot",
 
-                                    "btype",
-                                    "break",
-                                    "call",
-                                    "comp",
-                                    "div",
+    "btype",   "break",  "call",   "comp",   "div",
 
-                                    "equ",
-                                    "empty",
-                                    "expr",
-                                    "func",
-                                    "geq",
+    "equ",     "empty",  "expr",   "func",   "geq",
 
-                                    "grt",
-                                    "if",
-                                    "if",
-                                    "iconst",
-                                    "itype",
-                                    "leq",
-                                    "les",
-                                    "lvalue",
-                                    "mod",
-                                    "mul",
-                                    "neg",
-                                    "neq",
-                                    "not",
-                                    "or",
-                                    "program",
-                                    "return",
-                                    "sub",
-                                    "var",
-                                    "varref",
-                                    "while",
-                                    "FuncOrDecl"};
+    "grt",     "if",     "if",     "iconst", "itype",  "leq",   "les",
+    "lvalue",  "mod",    "mul",    "neg",    "neq",    "not",   "or",
+    "program", "return", "sub",    "var",    "varref", "while", "FuncOrDecl"};
 
 /*  Whether to print the decorated abstract syntax tree.
  */

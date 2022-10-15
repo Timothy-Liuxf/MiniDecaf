@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of "Variable".
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "config.hpp"

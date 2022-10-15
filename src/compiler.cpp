@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of "MindCompiler" class
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "compiler.hpp"

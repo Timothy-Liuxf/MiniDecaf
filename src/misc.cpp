@@ -2,7 +2,7 @@
  *  Implementation of indentation management etc.
  *
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "config.hpp"

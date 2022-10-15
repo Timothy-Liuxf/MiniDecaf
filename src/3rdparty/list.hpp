@@ -47,7 +47,7 @@
  *    rend(void)
  *      - gets an reverse iterator pointing beyond the first element
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_LIST__
@@ -55,80 +55,59 @@
 
 #include "boehmgc.hpp"
 
-#include <list>
 #include <iostream>
+#include <list>
 
 namespace mind {
 
-  namespace util {
+namespace util {
 
-	// List template class (just a wrapper)
-	template <typename _T>
-	class List {
-	private:
-	  typedef std::list<_T, gc_allocator<_T> >  _Cntner;
-	  _Cntner _l;
-	  
-	public:
-	  typedef typename _Cntner::iterator         iterator;
-	  typedef typename _Cntner::reverse_iterator reverse_iterator;
+// List template class (just a wrapper)
+template <typename _T> class List {
+  private:
+    typedef std::list<_T, gc_allocator<_T>> _Cntner;
+    _Cntner _l;
 
-	  List() {}
+  public:
+    typedef typename _Cntner::iterator iterator;
+    typedef typename _Cntner::reverse_iterator reverse_iterator;
 
-	  List(const _T& e) { append(e); }
-	  
-	  // Appends an element to the list
-	  void     append(const _T& e) {
-		_l.push_back (e);
-	  }
-	  
-	  // Inserts an element at the head of the list
-	  void     addAtHead(const _T& e) {
-		_l.push_front (e);
-	  }
-	  
-	  // Concates the list with another list
-	  void     concate(List<_T>* l) {
-		_l.merge (l->_l);
-	  }
-	  
-	  // Inserts an element before the specified position
-	  void     insertBefore(const _T& e, iterator i) {
-		_l.insert (i, e);
-	  }
-	  
-	  // Determines whether the list is empty
-	  bool     empty(void) const {
-		return _l.empty();
-	  }
+    List() {}
 
-	  // Gets the length of the list
-	  size_t   length(void) const {
-		return _l.size();
-	  }
-	  
-	  // Gets the iterator pointing to the first element
-	  iterator begin(void) {
-		return _l.begin();
-	  }
-	  
-	  // Gets the iterator pointing beyond the last element
-	  iterator end(void) {
-		return _l.end();
-	  }
+    List(const _T &e) { append(e); }
 
-	  reverse_iterator rbegin(void) {
-		return _l.rbegin();
-	  }
+    // Appends an element to the list
+    void append(const _T &e) { _l.push_back(e); }
 
-	  reverse_iterator rend(void) {
-		return _l.rend();
-	  }
+    // Inserts an element at the head of the list
+    void addAtHead(const _T &e) { _l.push_front(e); }
 
-	  virtual ~List() {}
-	};
+    // Concates the list with another list
+    void concate(List<_T> *l) { _l.merge(l->_l); }
 
-  }  
-}
+    // Inserts an element before the specified position
+    void insertBefore(const _T &e, iterator i) { _l.insert(i, e); }
+
+    // Determines whether the list is empty
+    bool empty(void) const { return _l.empty(); }
+
+    // Gets the length of the list
+    size_t length(void) const { return _l.size(); }
+
+    // Gets the iterator pointing to the first element
+    iterator begin(void) { return _l.begin(); }
+
+    // Gets the iterator pointing beyond the last element
+    iterator end(void) { return _l.end(); }
+
+    reverse_iterator rbegin(void) { return _l.rbegin(); }
+
+    reverse_iterator rend(void) { return _l.rend(); }
+
+    virtual ~List() {}
+};
+
+} // namespace util
+} // namespace mind
 
 #endif // __MIND_LIST__

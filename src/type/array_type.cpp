@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of the "ArrayType" class.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "config.hpp"

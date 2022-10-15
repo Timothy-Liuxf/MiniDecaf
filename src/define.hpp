@@ -4,7 +4,7 @@
  *  This file is used to resolve the "cyclic reference"
  *  dilemma in C++.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_DEFINE__

@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of the "Type" abstract class.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "type/type.hpp"

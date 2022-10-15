@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of the "BaseType" class.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "config.hpp"

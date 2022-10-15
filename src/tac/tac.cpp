@@ -1,7 +1,7 @@
 /*****************************************************
  *  Operations of Tac's and data objects.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "tac/tac.hpp"

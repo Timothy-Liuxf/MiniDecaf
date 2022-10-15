@@ -2,7 +2,7 @@
  *  Implementation of OffsetCounter.
  *
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "asm/offset_counter.hpp"

@@ -5,7 +5,7 @@
  *    1. Function - representing a function definition
  *    2. Variable - representing a variable
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_SYMBOL__

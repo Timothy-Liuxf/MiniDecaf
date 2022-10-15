@@ -2,7 +2,7 @@
  *  Location Record.
  *
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_LOCATION__

@@ -1,7 +1,7 @@
 /*****************************************************
  *  Implementation of the "FuncType" class.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #include "config.hpp"

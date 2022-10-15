@@ -5,7 +5,7 @@
  *  of which is the innermost scope. GlobalScope is at
  *  the bottom of the stack.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_SCOPESTACK__

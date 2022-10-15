@@ -4,7 +4,7 @@
  *  It is only an interface (we provide an empty body
  *  just to make your life easier..).
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_VISITOR__

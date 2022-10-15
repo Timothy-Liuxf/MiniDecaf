@@ -9,58 +9,40 @@
  *  the implementation of hashed data structures are quite different
  *  in GCC 4 and MS VC 8.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 // specialization of const char*
-template<>
-struct hash<const char*>
-{	
-  size_t
-  operator()(const char* __s) const {
-	unsigned long h = 0;
-	for ( ; '\0' != *__s; ++ __s)
-	  h = 5 * h + *__s;
-	return size_t(h);
-  }
+template <> struct hash<const char *> {
+    size_t operator()(const char *__s) const {
+        unsigned long h = 0;
+        for (; '\0' != *__s; ++__s)
+            h = 5 * h + *__s;
+        return size_t(h);
+    }
 };
 
 // specialization of int
-template<>
-struct hash<int> { 
-  size_t operator()(int __x) const {
-	return (__x < 0 ? 3 - __x : __x);
-  }
+template <> struct hash<int> {
+    size_t operator()(int __x) const { return (__x < 0 ? 3 - __x : __x); }
 };
 
 // specialization of unsigned int
-template<>
-struct hash<unsigned int> { 
-  size_t operator()(unsigned int __x) const {
-	return __x;
-  }
+template <> struct hash<unsigned int> {
+    size_t operator()(unsigned int __x) const { return __x; }
 };
 
 // specialization of long
-template<>
-struct hash<long> {
-  size_t operator()(long __x) const {
-	return (__x < 0 ? 3 - __x : __x);
-  }
+template <> struct hash<long> {
+    size_t operator()(long __x) const { return (__x < 0 ? 3 - __x : __x); }
 };
 
 // specialization of unsigned long
-template<>
-struct hash<unsigned long> {
-  size_t operator()(unsigned long __x) const {
-	return __x;
-  }
+template <> struct hash<unsigned long> {
+    size_t operator()(unsigned long __x) const { return __x; }
 };
 
 // specialization of pointers
-template<>
-struct hash<void*> {
-  size_t operator()(void* __x) const {
-	return (long)__x;
-  }
+template <> struct hash<void *> {
+    size_t operator()(void *__x) const { return (long)__x; }
 };

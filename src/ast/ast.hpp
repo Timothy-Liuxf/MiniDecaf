@@ -3,7 +3,7 @@
  *
  *  Please read the description of each class for details.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_AST__
@@ -207,8 +207,8 @@ class FuncDefn : public ASTNode {
     Type *ret_type;
     VarList *formals;
     StmtList *stmts;
-    bool forward_decl; // is this FuncDefn a forward declaration or full
-                       // definition?
+    bool forward_decl;         // is this FuncDefn a forward declaration or full
+                               // definition?
     symb::Function *ATTR(sym); // for semantic analysis
 };
 class FuncOrGlobal {

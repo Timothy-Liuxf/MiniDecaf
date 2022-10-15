@@ -1,7 +1,7 @@
 /*****************************************************
  *  Error Management of the Mind Compiler.
  *
- *  Keltin Leung 
+ *  Keltin Leung
  */
 
 #ifndef __MIND_ERROR__

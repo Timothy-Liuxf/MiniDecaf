@@ -128,7 +128,7 @@ Label TransHelper::getNewEntryLabel(Function *fn) {
  */
 Tac *TransHelper::memoOf(Function *f) {
     std::ostringstream oss;
-    
+
     int length = oss.str().size();
     char *memo = new char[length + 1];
     oss.str().copy(memo, length);
