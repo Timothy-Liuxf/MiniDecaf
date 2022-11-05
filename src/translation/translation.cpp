@@ -13,6 +13,7 @@
 #include "compiler.hpp"
 #include "config.hpp"
 #include "scope/scope.hpp"
+#include "scope/scope_stack.hpp"
 #include "symb/symbol.hpp"
 #include "tac/tac.hpp"
 #include "tac/trans_helper.hpp"
@@ -91,6 +92,11 @@ void Translation::visit(ast::FuncDefn *f) {
  */
 void Translation::visit(ast::AssignExpr *s) {
     // TODO
+    s->left->accept(this);
+    s->e->accept(this);
+    tr->genAssign(static_cast<ast::VarRef *>(s->left)->ATTR(sym)->getTemp(),
+                  s->e->ATTR(val));
+    s->ATTR(val) = static_cast<ast::VarRef *>(s->left)->ATTR(sym)->getTemp();
 }
 
 /* Translating an ast::ExprStmt node.
@@ -309,6 +315,9 @@ void Translation::visit(ast::BitNotExpr *e) {
  */
 void Translation::visit(ast::LvalueExpr *e) {
     // TODO
+    e->lvalue->accept(this);
+    mind_assert(e->lvalue->ATTR(lv_kind) == ast::Lvalue::SIMPLE_VAR);
+    e->ATTR(val) = static_cast<ast::VarRef *>(e->lvalue)->ATTR(sym)->getTemp();
 }
 
 /* Translating an ast::VarRef node.
@@ -333,6 +342,11 @@ void Translation::visit(ast::VarRef *ref) {
  */
 void Translation::visit(ast::VarDecl *decl) {
     // TODO
+    decl->ATTR(sym)->attachTemp(tr->getNewTempI4());
+    if (decl->init) {
+        decl->init->accept(this);
+        tr->genAssign(decl->ATTR(sym)->getTemp(), decl->init->ATTR(val));
+    }
 }
 
 /* Translates an entire AST into a Piece list.

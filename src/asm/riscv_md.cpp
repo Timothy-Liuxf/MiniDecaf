@@ -285,6 +285,10 @@ void RiscvDesc::emitTac(Tac *t) {
         emitBinaryTac(RiscvInstr::GEQ, t);
         break;
 
+    case Tac::ASSIGN:
+        emitUnaryTac(RiscvInstr::ASSIGN, t);
+        break;
+
     default:
         mind_assert(false); // should not appear inside a basic block
     }
@@ -631,6 +635,10 @@ void RiscvDesc::emitInstr(RiscvInstr *i) {
 
     case RiscvInstr::J:
         oss << "j" << i->l;
+        break;
+
+    case RiscvInstr::ASSIGN:
+        oss << "mv" << i->r0->name << ", " << i->r1->name;
         break;
 
     default:

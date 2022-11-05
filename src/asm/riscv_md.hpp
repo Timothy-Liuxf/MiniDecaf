@@ -108,6 +108,7 @@ struct RiscvInstr : public Instr {
         GTR,
         LEQ,
         GEQ,
+        ASSIGN
         // You could add other instructions/pseudo instructions here
     } op_code; // operation code
 

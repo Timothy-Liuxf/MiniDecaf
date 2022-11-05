@@ -94,8 +94,10 @@ void scan_end();
 %nterm<mind::ast::Program* > Program FoDList
 %nterm<mind::ast::FuncDefn* > FuncDefn
 %nterm<mind::ast::Type*> Type
+%nterm<mind::ast::VarDecl*> VarDecl
 %nterm<mind::ast::Statement*> Stmt  ReturnStmt ExprStmt IfStmt  CompStmt WhileStmt 
 %nterm<mind::ast::Expr*> Expr
+%nterm<mind::ast::Expr*> AssignExpr
 %nterm<mind::ast::Expr*> LogicalOrExpr
 %nterm<mind::ast::Expr*> LogicalAndExpr
 %nterm<mind::ast::Expr*> EqualityExpr
@@ -155,12 +157,13 @@ StmtList    : /* empty */
                   $$ = $1; }
             ;
 
-Stmt        : ReturnStmt {$$ = $1;}|
-              ExprStmt   {$$ = $1;}|
-              IfStmt     {$$ = $1;}|
-              WhileStmt  {$$ = $1;}|
-              CompStmt   {$$ = $1;}|
-              BREAK SEMICOLON  
+Stmt        : ReturnStmt {$$ = $1;} |
+              ExprStmt   {$$ = $1;} |
+              VarDecl    {$$ = $1;} |
+              IfStmt     {$$ = $1;} |
+              WhileStmt  {$$ = $1;} |
+              CompStmt   {$$ = $1;} |
+              BREAK SEMICOLON
                 {$$ = new ast::BreakStmt(POS(@1));} |
               SEMICOLON
                 {$$ = new ast::EmptyStmt(POS(@1));}
@@ -180,11 +183,20 @@ IfStmt      : IF LPAREN Expr RPAREN Stmt
 ReturnStmt  : RETURN Expr SEMICOLON
                 { $$ = new ast::ReturnStmt($2, POS(@1)); }
             ;
+VarDecl     : Type IDENTIFIER SEMICOLON
+                { $$ = new ast::VarDecl($2, $1, POS(@1)); }
+            | Type IDENTIFIER ASSIGN Expr SEMICOLON
+                { $$ = new ast::VarDecl($2, $1, $4, POS(@1)); }
+            ;
 ExprStmt    : Expr SEMICOLON
                 { $$ = new ast::ExprStmt($1, POS(@1)); } 
             ;         
 Expr        : Expr QUESTION Expr COLON Expr
                 { $$ = new ast::IfExpr($1, $3, $5, POS(@2)); }
+            | AssignExpr
+            ;
+AssignExpr  : IDENTIFIER ASSIGN AssignExpr
+                { $$ = new ast::AssignExpr(new ast::VarRef($1, POS(@1)), $3, POS(@2)); }
             | LogicalOrExpr
             ;
 LogicalOrExpr       : LogicalAndExpr
@@ -237,6 +249,8 @@ PrimaryExpr : ICONST
                 { $$ = new ast::IntConst($1, POS(@1)); }            
             | LPAREN Expr RPAREN
                 { $$ = $2; }
+            | IDENTIFIER
+                { $$ = new ast::LvalueExpr(new ast::VarRef($1, POS(@1)), POS(@1)); }
 %%
 
 /* SECTION IV: customized section */

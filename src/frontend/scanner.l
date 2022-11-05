@@ -72,9 +72,10 @@ IDENTIFIER    ([A-Za-z][_0-9A-Za-z]*)
 <B><EOF> { return yy::parser::make_END (loc); }
 <<EOF>> { return yy::parser::make_END (loc); }
 
-"int"         { return yy::parser::make_INT  (loc);      }
-"return"      { return yy::parser::make_RETURN  (loc);   }
-";"          { return yy::parser::make_SEMICOLON  (loc); }    
+"int"         { return yy::parser::make_INT  (loc);       }
+"return"      { return yy::parser::make_RETURN  (loc);       }
+";"          { return yy::parser::make_SEMICOLON  (loc);       }
+"="          { return yy::parser::make_ASSIGN(loc);       }
 "("          { return yy::parser::make_LPAREN  (loc);       }
 ")"          { return yy::parser::make_RPAREN  (loc);       }
 "{"          { return yy::parser::make_LBRACE  (loc);       }
