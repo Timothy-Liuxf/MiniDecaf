@@ -95,17 +95,10 @@ void scan_end();
 %nterm<mind::ast::FuncDefn* > FuncDefn
 %nterm<mind::ast::Type*> Type
 %nterm<mind::ast::VarDecl*> VarDecl
-%nterm<mind::ast::Statement*> Stmt  ReturnStmt ExprStmt IfStmt  CompStmt WhileStmt 
-%nterm<mind::ast::Expr*> Expr
-%nterm<mind::ast::Expr*> AssignExpr
-%nterm<mind::ast::Expr*> LogicalOrExpr
-%nterm<mind::ast::Expr*> LogicalAndExpr
-%nterm<mind::ast::Expr*> EqualityExpr
-%nterm<mind::ast::Expr*> RationalExpr
-%nterm<mind::ast::Expr*> AdditiveExpr
-%nterm<mind::ast::Expr*> MultiplicativeExpr
-%nterm<mind::ast::Expr*> UnaryExpr
-%nterm<mind::ast::Expr*> PrimaryExpr
+%nterm<mind::ast::Statement*> Stmt ReturnStmt ExprStmt IfStmt  CompStmt WhileStmt 
+%nterm<mind::ast::Statement*> BlockItem
+%nterm<mind::ast::Expr*> Expr AssignExpr ConditionalExpr LogicalOrExpr LogicalAndExpr EqualityExpr RationalExpr AdditiveExpr MultiplicativeExpr UnaryExpr PrimaryExpr
+
 /*   SUBSECTION 2.2: associativeness & precedences */
 %nonassoc QUESTION
 %left     OR
@@ -152,14 +145,15 @@ Type        : INT
                 { $$ = new ast::IntType(POS(@1)); }
 StmtList    : /* empty */
                 { $$ = new ast::StmtList(); }
-            | StmtList Stmt
+            | StmtList BlockItem
                 { $1->append($2);
                   $$ = $1; }
             ;
-
+BlockItem   : Stmt  {$$ = $1;}      |
+              VarDecl {$$ = $1;}
+            ;
 Stmt        : ReturnStmt {$$ = $1;} |
               ExprStmt   {$$ = $1;} |
-              VarDecl    {$$ = $1;} |
               IfStmt     {$$ = $1;} |
               WhileStmt  {$$ = $1;} |
               CompStmt   {$$ = $1;} |
@@ -191,14 +185,16 @@ VarDecl     : Type IDENTIFIER SEMICOLON
 ExprStmt    : Expr SEMICOLON
                 { $$ = new ast::ExprStmt($1, POS(@1)); } 
             ;         
-Expr        : Expr QUESTION Expr COLON Expr
-                { $$ = new ast::IfExpr($1, $3, $5, POS(@2)); }
-            | AssignExpr
+Expr        : AssignExpr
             ;
 AssignExpr  : IDENTIFIER ASSIGN AssignExpr
                 { $$ = new ast::AssignExpr(new ast::VarRef($1, POS(@1)), $3, POS(@2)); }
-            | LogicalOrExpr
+            | ConditionalExpr
             ;
+ConditionalExpr     : LogicalOrExpr
+                    | Expr QUESTION Expr COLON Expr
+                        { $$ = new ast::IfExpr($1, $3, $5, POS(@2)); }
+                    ;
 LogicalOrExpr       : LogicalAndExpr
                     | LogicalOrExpr OR LogicalAndExpr
                         { $$ = new ast::OrExpr($1, $3, POS(@2)); }

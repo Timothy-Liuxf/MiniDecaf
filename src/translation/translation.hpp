@@ -23,11 +23,12 @@ class Translation : public ast::Visitor {
 
     virtual void visit(ast::Program *);
     virtual void visit(ast::FuncDefn *);
-    virtual void visit(ast::AssignExpr *);
     virtual void visit(ast::CompStmt *);
     virtual void visit(ast::ExprStmt *);
     virtual void visit(ast::IfStmt *);
     virtual void visit(ast::ReturnStmt *);
+    virtual void visit(ast::AssignExpr *);
+    virtual void visit(ast::IfExpr *);
     virtual void visit(ast::AddExpr *);
     virtual void visit(ast::SubExpr *);
     virtual void visit(ast::MulExpr *);

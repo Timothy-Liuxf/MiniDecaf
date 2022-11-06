@@ -85,20 +85,6 @@ void Translation::visit(ast::FuncDefn *f) {
     tr->endFunc();
 }
 
-/* Translating an ast::AssignStmt node.
- *
- * NOTE:
- *   different kinds of Lvalue require different translation
- */
-void Translation::visit(ast::AssignExpr *s) {
-    // TODO
-    s->left->accept(this);
-    s->e->accept(this);
-    tr->genAssign(static_cast<ast::VarRef *>(s->left)->ATTR(sym)->getTemp(),
-                  s->e->ATTR(val));
-    s->ATTR(val) = static_cast<ast::VarRef *>(s->left)->ATTR(sym)->getTemp();
-}
-
 /* Translating an ast::ExprStmt node.
  */
 void Translation::visit(ast::ExprStmt *s) { s->e->accept(this); }
@@ -159,6 +145,43 @@ void Translation::visit(ast::CompStmt *c) {
 void Translation::visit(ast::ReturnStmt *s) {
     s->e->accept(this);
     tr->genReturn(s->e->ATTR(val));
+}
+
+/* Translating an ast::AssignExpr node.
+ *
+ * NOTE:
+ *   different kinds of Lvalue require different translation
+ */
+void Translation::visit(ast::AssignExpr *s) {
+    // TODO
+    s->left->accept(this);
+    s->e->accept(this);
+    tr->genAssign(static_cast<ast::VarRef *>(s->left)->ATTR(sym)->getTemp(),
+                  s->e->ATTR(val));
+    s->ATTR(val) = static_cast<ast::VarRef *>(s->left)->ATTR(sym)->getTemp();
+}
+
+/* Translating an ast::IfExpr node.
+ *
+ * NOTE:
+ *   different kinds of Lvalue require different translation
+ */
+void Translation::visit(ast::IfExpr *s) {
+    Label L1 = tr->getNewLabel();
+    Label L2 = tr->getNewLabel();
+    s->ATTR(val) = tr->getNewTempI4();
+    s->condition->accept(this);
+    tr->genJumpOnZero(L1, s->condition->ATTR(val));
+
+    s->true_brch->accept(this);
+    tr->genAssign(s->ATTR(val), s->true_brch->ATTR(val));
+    tr->genJump(L2);
+
+    tr->genMarkLabel(L1);
+    s->false_brch->accept(this);
+    tr->genAssign(s->ATTR(val), s->false_brch->ATTR(val));
+
+    tr->genMarkLabel(L2);
 }
 
 /* Translating an ast::AddExpr node.

@@ -31,6 +31,7 @@ using namespace mind::err;
 class SemPass2 : public ast::Visitor {
     // Visiting expressions
     virtual void visit(ast::AssignExpr *);
+    virtual void visit(ast::IfExpr *);
     virtual void visit(ast::AddExpr *);
     virtual void visit(ast::SubExpr *);
     virtual void visit(ast::MulExpr *);
@@ -383,10 +384,10 @@ void SemPass2::visit(ast::VarDecl *decl) {
         decl->init->accept(this);
 }
 
-/* Visits an ast::AssignStmt node.
+/* Visits an ast::AssignExpr node.
  *
  * PARAMETERS:
- *   e     - the ast::AssignStmt node
+ *   e     - the ast::AssignExpr node
  */
 void SemPass2::visit(ast::AssignExpr *s) {
     s->left->accept(this);
@@ -399,6 +400,33 @@ void SemPass2::visit(ast::AssignExpr *s) {
     }
 
     s->ATTR(type) = s->left->ATTR(type);
+}
+
+/* Visits an ast::IfExpr node.
+ *
+ * PARAMETERS:
+ *   e     - the ast::IfExpr node
+ */
+void SemPass2::visit(ast::IfExpr *e) {
+    e->condition->accept(this);
+    if (!e->condition->ATTR(type)->equal(BaseType::Int)) {
+        issue(e->condition->getLocation(), new BadTestExprError());
+        ;
+    }
+
+    e->true_brch->accept(this);
+    if (!e->true_brch->ATTR(type)->equal(BaseType::Int)) {
+        issue(e->true_brch->getLocation(), new BadTestExprError());
+        ;
+    }
+
+    e->false_brch->accept(this);
+    if (!e->false_brch->ATTR(type)->equal(BaseType::Int)) {
+        issue(e->false_brch->getLocation(), new BadTestExprError());
+        ;
+    }
+
+    e->ATTR(type) = BaseType::Int;
 }
 
 /* Visits an ast::ExprStmt node.
