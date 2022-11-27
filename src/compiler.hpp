@@ -1,18 +1,16 @@
 /*****************************************************
  *  MindCompiler class.
  *
- *  Keltin Leung
+ *  Keltin Leung 
  */
 
 #ifndef __MIND_COMPILER__
 #define __MIND_COMPILER__
 
 #include "define.hpp"
-#include "parser.hpp"
+#include "frontend/myparser.hpp"
 #include <iostream>
-#define YY_DECL yy::parser::symbol_type yylex()
-// ... and declare it for the parser's sake.
-YY_DECL;
+
 namespace mind {
 
 class MindCompiler {
