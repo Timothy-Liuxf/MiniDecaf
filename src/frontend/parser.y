@@ -95,7 +95,8 @@ void scan_end();
 %nterm<mind::ast::FuncDefn* > FuncDefn
 %nterm<mind::ast::Type*> Type
 %nterm<mind::ast::VarDecl*> VarDecl
-%nterm<mind::ast::Statement*> Stmt ReturnStmt ExprStmt IfStmt  CompStmt WhileStmt 
+%nterm<mind::ast::CompStmt*> CompStmt
+%nterm<mind::ast::Statement*> Stmt ReturnStmt ExprStmt IfStmt WhileStmt 
 %nterm<mind::ast::Statement*> BlockItem
 %nterm<mind::ast::Expr*> Expr AssignExpr ConditionalExpr LogicalOrExpr LogicalAndExpr EqualityExpr RationalExpr AdditiveExpr MultiplicativeExpr UnaryExpr PrimaryExpr
 
@@ -132,17 +133,22 @@ FoDList :
                   $$ = $1; }
                 }
 
-FuncDefn : Type IDENTIFIER LPAREN FormalList RPAREN LBRACE StmtList RBRACE {
-              $$ = new ast::FuncDefn($2,$1,$4,$7,POS(@1));
+FuncDefn : Type IDENTIFIER LPAREN FormalList RPAREN CompStmt {
+              $$ = new ast::FuncDefn($2,$1,$4,$6->stmts,POS(@1));
+              delete $6;
           } |
           Type IDENTIFIER LPAREN FormalList RPAREN SEMICOLON{
               $$ = new ast::FuncDefn($2,$1,$4,new ast::EmptyStmt(POS(@6)),POS(@1));
           }
 FormalList :  /* EMPTY */
             {$$ = new ast::VarList();} 
-
+            ;
 Type        : INT
                 { $$ = new ast::IntType(POS(@1)); }
+            ;
+CompStmt    : LBRACE StmtList RBRACE
+                {$$ = new ast::CompStmt($2,POS(@1));}
+            ;
 StmtList    : /* empty */
                 { $$ = new ast::StmtList(); }
             | StmtList BlockItem
@@ -161,9 +167,6 @@ Stmt        : ReturnStmt {$$ = $1;} |
                 {$$ = new ast::BreakStmt(POS(@1));} |
               SEMICOLON
                 {$$ = new ast::EmptyStmt(POS(@1));}
-            ;
-CompStmt    : LBRACE StmtList RBRACE
-                {$$ = new ast::CompStmt($2,POS(@1));}
             ;
 WhileStmt   : WHILE LPAREN Expr RPAREN Stmt
                 { $$ = new ast::WhileStmt($3, $5, POS(@1)); }
