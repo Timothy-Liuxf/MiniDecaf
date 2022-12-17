@@ -59,6 +59,7 @@ void scan_end();
    WHILE "while"
    FOR "for"
    BREAK "break"
+   CONTINUE "continue"
    EQU "=="
    NEQ "!="
    AND "&&" 
@@ -166,6 +167,8 @@ Stmt        : ReturnStmt {$$ = $1;} |
               CompStmt   {$$ = $1;} |
               BREAK SEMICOLON
                 {$$ = new ast::BreakStmt(POS(@1));} |
+              CONTINUE SEMICOLON
+                {$$ = new ast::ContStmt(POS(@1));} |
               SEMICOLON
                 {$$ = new ast::EmptyStmt(POS(@1));}
             ;

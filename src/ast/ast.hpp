@@ -37,6 +37,7 @@ class ASTNode {
         BIT_NOT_EXPR,
         BOOL_TYPE,
         BREAK_STMT,
+        CONT_STMT,
         CALL_EXPR,
         COMP_STMT,
         DIV_EXPR,

@@ -52,6 +52,7 @@ class Translation : public ast::Visitor {
     virtual void visit(ast::WhileStmt *);
     virtual void visit(ast::ForStmt *);
     virtual void visit(ast::BreakStmt *);
+    virtual void visit(ast::ContStmt *);
 
     virtual ~Translation() {}
 
@@ -59,6 +60,7 @@ class Translation : public ast::Visitor {
     tac::TransHelper *tr;
     tac::Label current_break_label = nullptr;
     // TODO: label for continue
+    tac::Label current_continue_label = nullptr;
 };
 } // namespace mind
 

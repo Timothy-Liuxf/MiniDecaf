@@ -117,6 +117,8 @@ void Translation::visit(ast::WhileStmt *s) {
 
     Label old_break = current_break_label;
     current_break_label = L2;
+    Label old_continue = current_continue_label;
+    current_continue_label = L1;
 
     tr->genMarkLabel(L1);
     s->condition->accept(this);
@@ -127,6 +129,7 @@ void Translation::visit(ast::WhileStmt *s) {
 
     tr->genMarkLabel(L2);
 
+    current_continue_label = old_continue;
     current_break_label = old_break;
 }
 
@@ -137,9 +140,12 @@ void Translation::visit(ast::ForStmt *s) {
 
     Label L1 = tr->getNewLabel();
     Label L2 = tr->getNewLabel();
+    Label L3 = tr->getNewLabel();
 
     Label old_break = current_break_label;
     current_break_label = L2;
+    Label old_continue = current_continue_label;
+    current_continue_label = L3;
 
     tr->genMarkLabel(L1);
     if (s->condition) {
@@ -148,11 +154,13 @@ void Translation::visit(ast::ForStmt *s) {
     }
 
     s->loop_body->accept(this);
+    tr->genMarkLabel(L3);
     s->update ? s->update->accept(this) : void();
     tr->genJump(L1);
 
     tr->genMarkLabel(L2);
 
+    current_continue_label = old_continue;
     current_break_label = old_break;
 }
 
@@ -164,6 +172,16 @@ void Translation::visit(ast::BreakStmt *s) {
                          new mind::err::SyntaxError("Break not in loop!"));
     }
     tr->genJump(current_break_label);
+}
+
+/* Translating an ast::ContStmt node.
+ */
+void Translation::visit(ast::ContStmt *s) {
+    if (current_continue_label == nullptr) {
+        mind::err::issue(s->getLocation(),
+                         new mind::err::SyntaxError("Continue not in loop!"));
+    }
+    tr->genJump(current_continue_label);
 }
 
 /* Translating an ast::CompStmt node.
