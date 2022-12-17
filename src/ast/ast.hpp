@@ -66,6 +66,7 @@ class ASTNode {
         VAR_REF,
         WHILE_STMT,
         FOD,
+        FOR_STMT
     } NodeType;
 
   protected:
@@ -304,6 +305,29 @@ class WhileStmt : public Statement {
     Expr *condition;
     Statement *loop_body;
 };
+
+/* Node representing a for statement.
+ *
+ * SERIALIZED FORM:
+ *   (for INIT CONDITION UPDATE LOOP_BODY)
+ */
+
+class ForStmt : public Statement {
+  public:
+    ForStmt(Statement *init, Expr *cond, Expr *update, Statement *loop_body,
+            Location *l);
+
+    virtual void accept(Visitor *);
+    virtual void dumpTo(std::ostream &);
+
+  public:
+    Statement *init;
+    Expr *condition;
+    Expr *update;
+    Statement *loop_body;
+    scope::Scope *ATTR(scope);
+};
+
 /* Node representing an comp statement.
  *
  * SERIALIZED FORM:

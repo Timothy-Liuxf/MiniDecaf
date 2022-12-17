@@ -108,6 +108,7 @@ void Translation::visit(ast::IfStmt *s) {
 
     tr->genMarkLabel(L2);
 }
+
 /* Translating an ast::WhileStmt node.
  */
 void Translation::visit(ast::WhileStmt *s) {
@@ -129,9 +130,41 @@ void Translation::visit(ast::WhileStmt *s) {
     current_break_label = old_break;
 }
 
+/* Translating an ast::ForStmt node.
+ */
+void Translation::visit(ast::ForStmt *s) {
+    s->init->accept(this);
+
+    Label L1 = tr->getNewLabel();
+    Label L2 = tr->getNewLabel();
+
+    Label old_break = current_break_label;
+    current_break_label = L2;
+
+    tr->genMarkLabel(L1);
+    if (s->condition) {
+        s->condition->accept(this);
+        tr->genJumpOnZero(L2, s->condition->ATTR(val));
+    }
+
+    s->loop_body->accept(this);
+    s->update ? s->update->accept(this) : void();
+    tr->genJump(L1);
+
+    tr->genMarkLabel(L2);
+
+    current_break_label = old_break;
+}
+
 /* Translating an ast::BreakStmt node.
  */
-void Translation::visit(ast::BreakStmt *s) { tr->genJump(current_break_label); }
+void Translation::visit(ast::BreakStmt *s) {
+    if (current_break_label == nullptr) {
+        mind::err::issue(s->getLocation(),
+                         new mind::err::SyntaxError("Break not in loop!"));
+    }
+    tr->genJump(current_break_label);
+}
 
 /* Translating an ast::CompStmt node.
  */

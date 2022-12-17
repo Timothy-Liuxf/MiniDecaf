@@ -96,9 +96,9 @@ void scan_end();
 %nterm<mind::ast::Type*> Type
 %nterm<mind::ast::VarDecl*> VarDecl
 %nterm<mind::ast::CompStmt*> CompStmt
-%nterm<mind::ast::Statement*> Stmt ReturnStmt ExprStmt IfStmt WhileStmt 
+%nterm<mind::ast::Statement*> Stmt ReturnStmt ExprStmt IfStmt WhileStmt ForStmt
 %nterm<mind::ast::Statement*> BlockItem
-%nterm<mind::ast::Expr*> Expr AssignExpr ConditionalExpr LogicalOrExpr LogicalAndExpr EqualityExpr RationalExpr AdditiveExpr MultiplicativeExpr UnaryExpr PrimaryExpr
+%nterm<mind::ast::Expr*> NulableExpr Expr AssignExpr ConditionalExpr LogicalOrExpr LogicalAndExpr EqualityExpr RationalExpr AdditiveExpr MultiplicativeExpr UnaryExpr PrimaryExpr
 
 /*   SUBSECTION 2.2: associativeness & precedences */
 %nonassoc QUESTION
@@ -162,6 +162,7 @@ Stmt        : ReturnStmt {$$ = $1;} |
               ExprStmt   {$$ = $1;} |
               IfStmt     {$$ = $1;} |
               WhileStmt  {$$ = $1;} |
+              ForStmt    {$$ = $1;} |
               CompStmt   {$$ = $1;} |
               BREAK SEMICOLON
                 {$$ = new ast::BreakStmt(POS(@1));} |
@@ -170,6 +171,18 @@ Stmt        : ReturnStmt {$$ = $1;} |
             ;
 WhileStmt   : WHILE LPAREN Expr RPAREN Stmt
                 { $$ = new ast::WhileStmt($3, $5, POS(@1)); }
+            ;
+NulableExpr : /* empty */
+                { $$ = nullptr; }
+            | Expr
+                { $$ = $1; }
+            ;
+ForStmt     : FOR LPAREN VarDecl NulableExpr SEMICOLON NulableExpr RPAREN Stmt
+                { $$ = new ast::ForStmt($3, $4, $6, $8, POS(@1)); }
+            | FOR LPAREN Expr SEMICOLON NulableExpr SEMICOLON NulableExpr RPAREN Stmt
+                { $$ = new ast::ForStmt(new ast::ExprStmt($3, POS(@3)), $5, $7, $9, POS(@1)); }
+            | FOR LPAREN SEMICOLON NulableExpr SEMICOLON NulableExpr RPAREN Stmt
+                { $$ = new ast::ForStmt(new ast::EmptyStmt(POS(@3)), $4, $6, $8, POS(@1)); }
             ;
 IfStmt      : IF LPAREN Expr RPAREN Stmt
                 { $$ = new ast::IfStmt($3, $5, new ast::EmptyStmt(POS(@5)), POS(@1)); }
@@ -187,7 +200,7 @@ VarDecl     : Type IDENTIFIER SEMICOLON
             ;
 ExprStmt    : Expr SEMICOLON
                 { $$ = new ast::ExprStmt($1, POS(@1)); } 
-            ;         
+            ;
 Expr        : AssignExpr
             ;
 AssignExpr  : IDENTIFIER ASSIGN AssignExpr
