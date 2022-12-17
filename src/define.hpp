@@ -91,6 +91,8 @@ class Type;
 class VarDecl;
 class VarRef;
 class WhileStmt;
+class ForStmt;
+class DoStmt;
 class CompStmt;
 class FuncOrGlobal;
 

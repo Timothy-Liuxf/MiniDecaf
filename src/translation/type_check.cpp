@@ -59,6 +59,7 @@ class SemPass2 : public ast::Visitor {
     virtual void visit(ast::ReturnStmt *);
     virtual void visit(ast::WhileStmt *);
     virtual void visit(ast::ForStmt *);
+    virtual void visit(ast::DoStmt *);
     // Visiting declarations
     virtual void visit(ast::FuncDefn *);
     virtual void visit(ast::Program *);
@@ -505,6 +506,20 @@ void SemPass2::visit(ast::ForStmt *s) {
     }
 
     scopes->close();
+}
+
+/* Visits an ast::DoStmt node.
+ *
+ * PARAMETERS:
+ *   s     - the ast::DoStmt node
+ */
+void SemPass2::visit(ast::DoStmt *s) {
+    s->loop_body->accept(this);
+
+    s->condition->accept(this);
+    if (!s->condition->ATTR(type)->equal(BaseType::Int)) {
+        issue(s->condition->getLocation(), new BadTestExprError());
+    }
 }
 
 /* Visits an ast::ReturnStmt node.

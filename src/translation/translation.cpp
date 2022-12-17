@@ -164,6 +164,32 @@ void Translation::visit(ast::ForStmt *s) {
     current_break_label = old_break;
 }
 
+/* Translating an ast::DoStmt node.
+ */
+void Translation::visit(ast::DoStmt *s) {
+    Label L1 = tr->getNewLabel();
+    Label L2 = tr->getNewLabel();
+    Label L3 = tr->getNewLabel();
+
+    Label old_break = current_break_label;
+    current_break_label = L2;
+    Label old_continue = current_continue_label;
+    current_continue_label = L3;
+
+    tr->genMarkLabel(L1);
+    s->loop_body->accept(this);
+
+    tr->genMarkLabel(L3);
+    s->condition->accept(this);
+    tr->genJumpOnZero(L2, s->condition->ATTR(val));
+    tr->genJump(L1);
+
+    tr->genMarkLabel(L2);
+
+    current_continue_label = old_continue;
+    current_break_label = old_break;
+}
+
 /* Translating an ast::BreakStmt node.
  */
 void Translation::visit(ast::BreakStmt *s) {

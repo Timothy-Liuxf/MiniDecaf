@@ -63,6 +63,7 @@ class Visitor {
     virtual void visit(CompStmt *) {}
     virtual void visit(WhileStmt *) {}
     virtual void visit(ForStmt *) {}
+    virtual void visit(DoStmt *) {}
     virtual void visit(EmptyStmt *) {}
     virtual void visit(BreakStmt *) {}
     virtual void visit(ContStmt *) {}

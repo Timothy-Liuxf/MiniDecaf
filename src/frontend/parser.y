@@ -97,7 +97,7 @@ void scan_end();
 %nterm<mind::ast::Type*> Type
 %nterm<mind::ast::VarDecl*> VarDecl
 %nterm<mind::ast::CompStmt*> CompStmt
-%nterm<mind::ast::Statement*> Stmt ReturnStmt ExprStmt IfStmt WhileStmt ForStmt
+%nterm<mind::ast::Statement*> Stmt ReturnStmt ExprStmt IfStmt WhileStmt ForStmt DoStmt
 %nterm<mind::ast::Statement*> BlockItem
 %nterm<mind::ast::Expr*> NulableExpr Expr AssignExpr ConditionalExpr LogicalOrExpr LogicalAndExpr EqualityExpr RationalExpr AdditiveExpr MultiplicativeExpr UnaryExpr PrimaryExpr
 
@@ -163,6 +163,7 @@ Stmt        : ReturnStmt {$$ = $1;} |
               ExprStmt   {$$ = $1;} |
               IfStmt     {$$ = $1;} |
               WhileStmt  {$$ = $1;} |
+              DoStmt  {$$ = $1;} |
               ForStmt    {$$ = $1;} |
               CompStmt   {$$ = $1;} |
               BREAK SEMICOLON
@@ -186,6 +187,9 @@ ForStmt     : FOR LPAREN VarDecl NulableExpr SEMICOLON NulableExpr RPAREN Stmt
                 { $$ = new ast::ForStmt(new ast::ExprStmt($3, POS(@3)), $5, $7, $9, POS(@1)); }
             | FOR LPAREN SEMICOLON NulableExpr SEMICOLON NulableExpr RPAREN Stmt
                 { $$ = new ast::ForStmt(new ast::EmptyStmt(POS(@3)), $4, $6, $8, POS(@1)); }
+            ;
+DoStmt   : DO Stmt WHILE LPAREN Expr RPAREN SEMICOLON
+                { $$ = new ast::DoStmt($5, $2, POS(@1)); }
             ;
 IfStmt      : IF LPAREN Expr RPAREN Stmt
                 { $$ = new ast::IfStmt($3, $5, new ast::EmptyStmt(POS(@5)), POS(@1)); }

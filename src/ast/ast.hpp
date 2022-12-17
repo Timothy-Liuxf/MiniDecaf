@@ -329,6 +329,23 @@ class ForStmt : public Statement {
     scope::Scope *ATTR(scope);
 };
 
+/* Node representing a do statement.
+ *
+ * SERIALIZED FORM:
+ *   (do LOOP_BODY while CONDITION)
+ */
+class DoStmt : public Statement {
+  public:
+    DoStmt(Expr *cond, Statement *loop_body, Location *l);
+
+    virtual void accept(Visitor *);
+    virtual void dumpTo(std::ostream &);
+
+  public:
+    Expr *condition;
+    Statement *loop_body;
+};
+
 /* Node representing an comp statement.
  *
  * SERIALIZED FORM:
