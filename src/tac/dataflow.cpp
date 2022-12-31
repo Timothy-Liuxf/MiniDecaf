@@ -70,10 +70,13 @@ void BasicBlock::computeDefAndLiveUse(void) {
 
         case Tac::POP:
         case Tac::LOAD_IMM4:
+        case Tac::CALL:
+        case Tac::PARAM:
             updateDEF(t->op0.var);
             break;
 
         case Tac::PUSH:
+        case Tac::ARG:
             updateLU(t->op0.var);
             break;
 
@@ -219,11 +222,14 @@ void BasicBlock::analyzeLiveness(void) {
 
         case Tac::POP:
         case Tac::LOAD_IMM4:
+        case Tac::CALL:
+        case Tac::PARAM:
             if (NULL != t_next->op0.var)
                 t->LiveOut->remove(t_next->op0.var);
             break;
 
         case Tac::PUSH:
+        case Tac::ARG:
             t->LiveOut->add(t_next->op0.var);
             break;
 

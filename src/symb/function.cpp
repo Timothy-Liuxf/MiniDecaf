@@ -113,7 +113,8 @@ void Function::dump(std::ostream &os) {
  *   l     - the label
  */
 void Function::attachEntryLabel(Label l) {
-    mind_assert(NULL != l && NULL == entry);
+    mind_assert(NULL != l);
+    mind_assert(NULL == entry);
 
     entry = l;
 }

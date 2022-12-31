@@ -67,25 +67,25 @@ RiscvDesc::RiscvDesc(void) {
     _reg[RiscvReg::T5] = new RiscvReg("t5", true);
     _reg[RiscvReg::T6] = new RiscvReg("t6", true);
     _reg[RiscvReg::FP] = new RiscvReg("fp", false); // frame pointer
-    _reg[RiscvReg::S1] = new RiscvReg("s1", true);
-    _reg[RiscvReg::S2] = new RiscvReg("s2", true);
-    _reg[RiscvReg::S3] = new RiscvReg("s3", true);
-    _reg[RiscvReg::S4] = new RiscvReg("s4", true);
-    _reg[RiscvReg::S5] = new RiscvReg("s5", true);
-    _reg[RiscvReg::S6] = new RiscvReg("s6", true);
-    _reg[RiscvReg::S7] = new RiscvReg("s7", true);
-    _reg[RiscvReg::S8] = new RiscvReg("s8", true);
-    _reg[RiscvReg::S9] = new RiscvReg("s9", true);
-    _reg[RiscvReg::S10] = new RiscvReg("s10", true);
-    _reg[RiscvReg::S11] = new RiscvReg("s11", true);
-    _reg[RiscvReg::A0] = new RiscvReg("a0", true); // argument, return value
-    _reg[RiscvReg::A1] = new RiscvReg("a1", true); // argument, return value
-    _reg[RiscvReg::A2] = new RiscvReg("a2", true); // argument
-    _reg[RiscvReg::A3] = new RiscvReg("a3", true); // argument
-    _reg[RiscvReg::A4] = new RiscvReg("a4", true); // argument
-    _reg[RiscvReg::A5] = new RiscvReg("a5", true); // argument
-    _reg[RiscvReg::A6] = new RiscvReg("a6", true); // argument
-    _reg[RiscvReg::A7] = new RiscvReg("a7", true); // argument
+    _reg[RiscvReg::S1] = new RiscvReg("s1", false);
+    _reg[RiscvReg::S2] = new RiscvReg("s2", false);
+    _reg[RiscvReg::S3] = new RiscvReg("s3", false);
+    _reg[RiscvReg::S4] = new RiscvReg("s4", false);
+    _reg[RiscvReg::S5] = new RiscvReg("s5", false);
+    _reg[RiscvReg::S6] = new RiscvReg("s6", false);
+    _reg[RiscvReg::S7] = new RiscvReg("s7", false);
+    _reg[RiscvReg::S8] = new RiscvReg("s8", false);
+    _reg[RiscvReg::S9] = new RiscvReg("s9", false);
+    _reg[RiscvReg::S10] = new RiscvReg("s10", false);
+    _reg[RiscvReg::S11] = new RiscvReg("s11", false);
+    _reg[RiscvReg::A0] = new RiscvReg("a0", false); // argument, return value
+    _reg[RiscvReg::A1] = new RiscvReg("a1", false); // argument, return value
+    _reg[RiscvReg::A2] = new RiscvReg("a2", false); // argument
+    _reg[RiscvReg::A3] = new RiscvReg("a3", false); // argument
+    _reg[RiscvReg::A4] = new RiscvReg("a4", false); // argument
+    _reg[RiscvReg::A5] = new RiscvReg("a5", false); // argument
+    _reg[RiscvReg::A6] = new RiscvReg("a6", false); // argument
+    _reg[RiscvReg::A7] = new RiscvReg("a7", false); // argument
 
     _lastUsedReg = 0;
     _label_counter = 0;
@@ -123,6 +123,7 @@ void RiscvDesc::emitPieces(scope::GlobalScope *gscope, Piece *ps,
         switch (ps->kind) {
         case Piece::FUNCTY:
             emitFuncty(ps->as.functy);
+            this->_currentLoadedParam = 0; // reset the counter of params
             break;
 
         default:
@@ -289,6 +290,18 @@ void RiscvDesc::emitTac(Tac *t) {
         emitUnaryTac(RiscvInstr::ASSIGN, t);
         break;
 
+    case Tac::ARG:
+        emitArgTac(t);
+        break;
+
+    case Tac::PARAM:
+        emitParamTac(t);
+        break;
+
+    case Tac::CALL:
+        emitCallTac(t);
+        break;
+
     default:
         mind_assert(false); // should not appear inside a basic block
     }
@@ -344,6 +357,123 @@ void RiscvDesc::emitBinaryTac(RiscvInstr::OpCode op, Tac *t) {
     int r0 = getRegForWrite(t->op0.var, r1, r2, liveness);
 
     addInstr(op, _reg[r0], _reg[r1], _reg[r2], 0, EMPTY_STR, NULL);
+}
+
+/* Translates a Arg TAC into Riscv instructions.
+ *
+ * PARAMETERS:
+ *   t     - the Arg TAC
+ */
+void RiscvDesc::emitArgTac(Tac *t) {
+    if (this->_lastUsedParamReg < 8) {
+        passParamReg(t, this->_lastUsedParamReg);
+    } else {
+        this->_extraArgs.push(t->op0.var);
+    }
+    ++this->_lastUsedParamReg;
+}
+
+/* Translates a Param TAC into Riscv instructions.
+ *
+ * PARAMETERS:
+ *   t     - the Param TAC
+ */
+
+void RiscvDesc::emitParamTac(Tac *t) {
+    auto r0 = getRegForWrite(t->op0.var, 0, 0, t->LiveOut);
+    if (this->_currentLoadedParam < 8) {
+        addInstr(RiscvInstr::MOVE, _reg[r0],
+                 _reg[RiscvReg::A0 + this->_currentLoadedParam], NULL, 0,
+                 EMPTY_STR, NULL);
+    } else {
+        addInstr(RiscvInstr::LW, _reg[r0], _reg[RiscvReg::FP], NULL,
+                 8 + (this->_currentLoadedParam - 8) * POINTER_SIZE, EMPTY_STR,
+                 NULL);
+    }
+    ++this->_currentLoadedParam;
+}
+
+/* Translates a Call TAC into Riscv instructions.
+ *
+ * PARAMETERS:
+ *   t     - the Call TAC
+ */
+void RiscvDesc::emitCallTac(Tac *t) {
+    // Save caller saved registers
+    const int callerSavedRegs[] = {
+        RiscvReg::A0, RiscvReg::RA, RiscvReg::T0, RiscvReg::T1,
+        RiscvReg::T2, RiscvReg::A1, RiscvReg::A2, RiscvReg::A3,
+        RiscvReg::A4, RiscvReg::A5, RiscvReg::A6, RiscvReg::A7,
+        RiscvReg::T3, RiscvReg::T4, RiscvReg::T5, RiscvReg::T6,
+    };
+    constexpr int numCallerSavedRegs =
+        sizeof(callerSavedRegs) / sizeof(callerSavedRegs[0]);
+    bool saved[numCallerSavedRegs] = {0};
+    constexpr int allocSavedMemSize =
+        (numCallerSavedRegs * POINTER_SIZE + 0x0F) & ~0x0F; // 16 bytes
+    addInstr(RiscvInstr::ADDI, _reg[RiscvReg::SP], _reg[RiscvReg::SP], NULL,
+             -allocSavedMemSize, EMPTY_STR,
+             "Alloc for Saving caller saved registers");
+
+    for (int i = 0; i < numCallerSavedRegs; ++i) {
+        if (t->LiveOut->contains(_reg[callerSavedRegs[i]]->var)) {
+            addInstr(RiscvInstr::SW, _reg[callerSavedRegs[i]],
+                     _reg[RiscvReg::SP], NULL, i * POINTER_SIZE, EMPTY_STR,
+                     NULL);
+            saved[i] = true;
+        }
+    }
+
+    // pass extra parameters
+    const int allocMemSize = ((this->_extraArgs.size() * POINTER_SIZE) + 0x0F) &
+                             ~0x0F; // align to 16 bytes
+    if (allocMemSize != 0) {
+        addInstr(RiscvInstr::ADDI, _reg[RiscvReg::SP], _reg[RiscvReg::SP], NULL,
+                 -allocMemSize, EMPTY_STR, "Alloc extra space for parameters");
+        while (!this->_extraArgs.empty()) {
+            Temp arg = this->_extraArgs.top();
+            this->_extraArgs.pop();
+            auto r = getRegForRead(arg, 0, t->LiveOut);
+            addInstr(RiscvInstr::SW, _reg[r], _reg[RiscvReg::SP], NULL,
+                     this->_extraArgs.size() * POINTER_SIZE, EMPTY_STR,
+                     "Pass extra parameter");
+        }
+    }
+
+    // call function
+    addInstr(RiscvInstr::CALL, NULL, NULL, NULL, 0, t->op1.label->str_form,
+             NULL);
+
+    // restore stack pointer for param
+    if (allocMemSize != 0) {
+        addInstr(RiscvInstr::ADDI, _reg[RiscvReg::SP], _reg[RiscvReg::SP], NULL,
+                 allocMemSize, EMPTY_STR, "Restore stack pointer");
+    }
+
+    // reset
+    this->_lastUsedParamReg = 0;
+
+    // restore caller saved registers except a0
+    for (int i = 0; i < numCallerSavedRegs; ++i) {
+        if (saved[i] && callerSavedRegs[i] != RiscvReg::A0) {
+            addInstr(RiscvInstr::LW, _reg[callerSavedRegs[i]],
+                     _reg[RiscvReg::SP], NULL, i * POINTER_SIZE, EMPTY_STR,
+                     NULL);
+        }
+    }
+
+    // save return value
+    auto r0 = getRegForWrite(t->op0.var, 0, 0, t->LiveOut);
+    if (r0 != RiscvReg::ZERO) {
+        addInstr(RiscvInstr::ASSIGN, _reg[r0], _reg[RiscvReg::A0], NULL, 0,
+                 EMPTY_STR, NULL);
+    }
+
+    // restore a0
+    if (r0 != RiscvReg::A0 && saved[0]) {
+        addInstr(RiscvInstr::LW, _reg[RiscvReg::A0], _reg[RiscvReg::SP], NULL,
+                 0, EMPTY_STR, NULL);
+    }
 }
 
 /* Outputs a single instruction line.
@@ -423,7 +553,6 @@ void RiscvDesc::emitFuncty(Functy f) {
     FlowGraph *g = FlowGraph::makeGraph(f);
     g->simplify();        // simple optimization
     g->analyzeLiveness(); // computes LiveOut set of the basic blocks
-
     for (FlowGraph::iterator it = g->begin(); it != g->end(); ++it) {
         // all variables shared between basic blocks should be reserved
         Set<Temp> *liveout = (*it)->LiveOut;
@@ -641,6 +770,14 @@ void RiscvDesc::emitInstr(RiscvInstr *i) {
         oss << "mv" << i->r0->name << ", " << i->r1->name;
         break;
 
+    case RiscvInstr::ADDI:
+        oss << "addi" << i->r0->name << ", " << i->r1->name << ", " << i->i;
+        break;
+
+    case RiscvInstr::CALL:
+        oss << "call _" << i->l;
+        break;
+
     default:
         mind_assert(false); // other instructions not supported
     }
@@ -760,7 +897,6 @@ int RiscvDesc::getRegForRead(Temp v, int avoid1, LiveSet *live) {
                 << _reg[i]->name;
             addInstr(RiscvInstr::LW, _reg[i], base, NULL, v->offset, EMPTY_STR,
                      oss.str().c_str());
-
         } else {
             oss << "initialize " << v << " with 0";
             addInstr(RiscvInstr::MOVE, _reg[i], _reg[RiscvReg::ZERO], NULL, 0,

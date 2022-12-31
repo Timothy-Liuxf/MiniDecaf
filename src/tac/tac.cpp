@@ -454,6 +454,24 @@ Tac *Tac::BNot(Temp dest, Temp src) {
     return t;
 }
 
+/* Creates a Arg tac.
+ *
+ * NOTE:
+ *   pass argument
+ * PARAMETERS:
+ *   argument - argument
+ * RETURNS:
+ *   a Arg tac
+ */
+Tac *Tac::Arg(Temp arg) {
+    REQUIRE_I4(arg);
+
+    Tac *t = allocateNewTac(Tac::ARG);
+    t->op0.var = arg;
+
+    return t;
+}
+
 /* Creates a Param tac.
  *
  * NOTE:
@@ -753,8 +771,12 @@ void Tac::dump(std::ostream &os) {
         os << "    " << op0.var << " <- (~ " << op1.var << ")";
         break;
 
+    case ARG:
+        os << "    arg  " << op0.var;
+        break;
+
     case PARAM:
-        os << "    param  " << op0.var;
+        os << "    param " << op0.var;
         break;
 
     case CALL:

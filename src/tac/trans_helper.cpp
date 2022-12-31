@@ -393,6 +393,15 @@ Temp TransHelper::genBNot(Temp src) {
     return c;
 }
 
+/* Appends a Arg tac node to the current list.
+ *
+ * PARAMETERS:
+ *   arg  - operand
+ * RETURNS:
+ *   void
+ */
+void TransHelper::genArg(Temp arg) { chainUp(Tac::Arg(arg)); }
+
 /* Appends a Param tac node to the current list.
  *
  * PARAMETERS:

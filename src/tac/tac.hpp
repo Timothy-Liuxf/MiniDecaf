@@ -87,6 +87,7 @@ struct Tac {
         LOR,
         LNOT,
         BNOT,
+        ARG,
         PARAM,
         CALL,
         MARK,
@@ -140,6 +141,7 @@ struct Tac {
     static Tac *Neg(Temp dest, Temp src);
     static Tac *LNot(Temp dest, Temp src);
     static Tac *BNot(Temp dest, Temp src);
+    static Tac *Arg(Temp arg);
     static Tac *Param(Temp param);
     static Tac *Call(Temp dest, Label entry);
     static Tac *LoadImm4(Temp dest, int value);

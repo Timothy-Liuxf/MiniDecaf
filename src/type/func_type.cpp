@@ -77,6 +77,9 @@ bool FuncType::compatible(Type *t) {
             arglist->length() != ft->arglist->length())
             return false; // result types and arglist lengths must match
 
+        if (arglist->length() == 0)
+            return true; // no need to compare further
+
         TypeList::iterator it1, it2;
         it1 = arglist->begin();
         it2 = ft->arglist->begin();

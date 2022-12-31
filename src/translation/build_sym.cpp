@@ -111,6 +111,7 @@ void SemPass1::visit(ast::FuncDefn *fdef) {
                   new IncompatibleError(f->getType(), sym->getType()));
         } else {
             Function *org_func = static_cast<Function *>(sym);
+            f->getType()->compatible(org_func->getType());
             if (!f->getType()->compatible(org_func->getType())) {
                 issue(fdef->getLocation(),
                       new DeclConflictError(fdef->name, org_func));
@@ -118,7 +119,10 @@ void SemPass1::visit(ast::FuncDefn *fdef) {
                 issue(fdef->getLocation(),
                       new DeclConflictError(fdef->name, sym));
             } else if (!f->is_decl) {
-                scopes->declare(f);
+                auto argList = org_func->getType()->getArgList();
+                *argList = std::move(*f->getType()->getArgList());
+                fdef->ATTR(sym) = org_func;
+                delete f;
             }
         }
     } else {

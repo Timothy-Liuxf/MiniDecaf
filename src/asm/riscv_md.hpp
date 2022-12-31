@@ -7,9 +7,12 @@
 #define __MIND_RISCVMD__
 
 #include "3rdparty/set.hpp"
+#include "3rdparty/stack.hpp"
 #include "asm/mach_desc.hpp"
 #include "asm/riscv_frame_manager.hpp"
 #include "define.hpp"
+
+#define POINTER_SIZE 4 // pointer size in bytes
 
 namespace mind {
 #define RISCV_COMPONENTS_DEFINED
@@ -108,7 +111,9 @@ struct RiscvInstr : public Instr {
         GTR,
         LEQ,
         GEQ,
-        ASSIGN
+        ASSIGN,
+        ADDI,
+        CALL,
         // You could add other instructions/pseudo instructions here
     } op_code; // operation code
 
@@ -162,6 +167,12 @@ class RiscvDesc : public MachineDesc {
     void emitUnaryTac(RiscvInstr::OpCode, tac::Tac *);
     // translates a Binary TAC into assembly instructions
     void emitBinaryTac(RiscvInstr::OpCode, tac::Tac *);
+    // translates a Arg TAC into assembly instructions
+    void emitArgTac(tac::Tac *);
+    // translates a Param TAC into assembly instructions
+    void emitParamTac(tac::Tac *);
+    // translates a Call TAC into assembly instructions
+    void emitCallTac(tac::Tac *);
 
     // outputs an instruction
     void emit(std::string, const char *, const char *);
@@ -183,6 +194,10 @@ class RiscvDesc : public MachineDesc {
     /*** the register allocator ***/
     RiscvReg *_reg[RiscvReg::TOTAL_NUM]; // registers of a machine
     int _lastUsedReg;                    // which register was used last?
+    int _lastUsedParamReg = 0; // which parameter register was used last?
+    mind::util::Stack<mind::tac::Temp>
+        _extraArgs;              // extra arguments for a function call
+    int _currentLoadedParam = 0; // which parameter is being loaded?
 
     // acquires a register to read the value of a variable
     int getRegForRead(tac::Temp, int, LiveSet *);

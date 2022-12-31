@@ -60,7 +60,9 @@ void Translation::visit(ast::FuncDefn *f) {
     Function *fun = f->ATTR(sym);
 
     // attaching function entry label
-    fun->attachEntryLabel(tr->getNewEntryLabel(fun));
+    if (fun->getEntryLabel() == NULL) {
+        fun->attachEntryLabel(tr->getNewEntryLabel(fun));
+    }
 
     if (f->forward_decl) {
         return;
@@ -83,6 +85,9 @@ void Translation::visit(ast::FuncDefn *f) {
     tr->startFunc(fun);
 
     // You may process params here, i.e use reg or stack to pass parameters
+    for (auto it = f->formals->begin(); it != f->formals->end(); ++it) {
+        tr->genParam((*it)->ATTR(sym)->getTemp());
+    }
 
     // translates statement by statement
     for (auto it = f->stmts->begin(); it != f->stmts->end(); ++it)
@@ -429,7 +434,9 @@ void Translation::visit(ast::BitNotExpr *e) {
 void Translation::visit(ast::CallExpr *e) {
     for (auto itr = e->args->begin(); itr != e->args->end(); ++itr) {
         (*itr)->accept(this);
-        tr->genParam((*itr)->ATTR(val));
+    }
+    for (auto itr = e->args->begin(); itr != e->args->end(); ++itr) {
+        tr->genArg((*itr)->ATTR(val));
     }
 
     Function *func =

@@ -58,6 +58,8 @@ class TransHelper {
     Temp genLNot(Temp);
     // Bitwise
     Temp genBNot(Temp);
+    // Argument
+    void genArg(Temp);
     // Param
     void genParam(Temp);
     // Call
