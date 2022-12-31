@@ -91,15 +91,16 @@ void scan_end();
 %token <std::string> IDENTIFIER "identifier"
 %token<int> ICONST "iconst"
 %nterm<mind::ast::StmtList*> StmtList
-%nterm<mind::ast::VarList* > FormalList 
-%nterm<mind::ast::Program* > Program FoDList
-%nterm<mind::ast::FuncDefn* > FuncDefn
+%nterm<mind::ast::VarList*> FormalList ParamList
+%nterm<mind::ast::ExprList*> ExprList NonNullExprList
+%nterm<mind::ast::Program*> Program FoDList
+%nterm<mind::ast::FuncDefn*> FuncDefn
 %nterm<mind::ast::Type*> Type
 %nterm<mind::ast::VarDecl*> VarDecl
 %nterm<mind::ast::CompStmt*> CompStmt
 %nterm<mind::ast::Statement*> Stmt ReturnStmt ExprStmt IfStmt WhileStmt ForStmt DoStmt
 %nterm<mind::ast::Statement*> BlockItem
-%nterm<mind::ast::Expr*> NulableExpr Expr AssignExpr ConditionalExpr LogicalOrExpr LogicalAndExpr EqualityExpr RationalExpr AdditiveExpr MultiplicativeExpr UnaryExpr PrimaryExpr
+%nterm<mind::ast::Expr*> NullableExpr Expr AssignExpr ConditionalExpr LogicalOrExpr LogicalAndExpr EqualityExpr RationalExpr AdditiveExpr MultiplicativeExpr UnaryExpr PostfixExpr PrimaryExpr
 
 /*   SUBSECTION 2.2: associativeness & precedences */
 %nonassoc QUESTION
@@ -141,8 +142,19 @@ FuncDefn            : Type IDENTIFIER LPAREN FormalList RPAREN CompStmt {
                     Type IDENTIFIER LPAREN FormalList RPAREN SEMICOLON{
                         $$ = new ast::FuncDefn($2,$1,$4,new ast::EmptyStmt(POS(@6)),POS(@1));
                     }
-FormalList          :  /* EMPTY */
-                    {$$ = new ast::VarList();} 
+FormalList          : ParamList
+                        {$$ = $1;}
+                    | /* EMPTY */
+                        {$$ = new ast::VarList();}
+                    ;
+ParamList           : Type IDENTIFIER
+                        {$$ = new ast::VarList();
+                         $$->append(new ast::VarDecl($2,$1,POS(@1)));
+                        }
+                    | ParamList COMMA Type IDENTIFIER
+                        {$1->append(new ast::VarDecl($4,$3,POS(@3)));
+                         $$ = $1;
+                        }
                     ;
 Type                : INT
                         { $$ = new ast::IntType(POS(@1)); }
@@ -176,16 +188,16 @@ Stmt                : ReturnStmt {$$ = $1;} |
 WhileStmt           : WHILE LPAREN Expr RPAREN Stmt
                         { $$ = new ast::WhileStmt($3, $5, POS(@1)); }
                     ;
-NulableExpr         : /* empty */
+NullableExpr         : /* empty */
                         { $$ = nullptr; }
                     | Expr
                         { $$ = $1; }
                     ;
-ForStmt             : FOR LPAREN VarDecl NulableExpr SEMICOLON NulableExpr RPAREN Stmt
+ForStmt             : FOR LPAREN VarDecl NullableExpr SEMICOLON NullableExpr RPAREN Stmt
                         { $$ = new ast::ForStmt($3, $4, $6, $8, POS(@1)); }
-                    | FOR LPAREN Expr SEMICOLON NulableExpr SEMICOLON NulableExpr RPAREN Stmt
+                    | FOR LPAREN Expr SEMICOLON NullableExpr SEMICOLON NullableExpr RPAREN Stmt
                         { $$ = new ast::ForStmt(new ast::ExprStmt($3, POS(@3)), $5, $7, $9, POS(@1)); }
-                    | FOR LPAREN SEMICOLON NulableExpr SEMICOLON NulableExpr RPAREN Stmt
+                    | FOR LPAREN SEMICOLON NullableExpr SEMICOLON NullableExpr RPAREN Stmt
                         { $$ = new ast::ForStmt(new ast::EmptyStmt(POS(@3)), $4, $6, $8, POS(@1)); }
                     ;
 DoStmt              : DO Stmt WHILE LPAREN Expr RPAREN SEMICOLON
@@ -203,6 +215,18 @@ VarDecl             : Type IDENTIFIER SEMICOLON
                         { $$ = new ast::VarDecl($2, $1, POS(@1)); }
                     | Type IDENTIFIER ASSIGN Expr SEMICOLON
                         { $$ = new ast::VarDecl($2, $1, $4, POS(@1)); }
+                    ;
+NonNullExprList     : Expr
+                        { $$ = new ast::ExprList();
+                          $$->append($1); }
+                    | NonNullExprList COMMA Expr
+                        { $1->append($3);
+                          $$ = $1; }
+                    ;
+ExprList            : /* empty */
+                        { $$ = new ast::ExprList(); }
+                    | NonNullExprList
+                        { $$ = $1; }
                     ;
 ExprStmt            : Expr SEMICOLON
                         { $$ = new ast::ExprStmt($1, POS(@1)); } 
@@ -255,7 +279,7 @@ MultiplicativeExpr  : UnaryExpr
                     | MultiplicativeExpr MOD UnaryExpr
                         { $$ = new ast::ModExpr($1, $3, POS(@2)); }
                     ;
-UnaryExpr           : PrimaryExpr
+UnaryExpr           : PostfixExpr
                     | MINUS UnaryExpr  %prec NEG
                         { $$ = new ast::NegExpr($2, POS(@1)); }
                     | LNOT UnaryExpr
@@ -263,6 +287,9 @@ UnaryExpr           : PrimaryExpr
                     | BNOT UnaryExpr
                         { $$ = new ast::BitNotExpr($2, POS(@1)); }
                     ;
+PostfixExpr         : PrimaryExpr
+                    | IDENTIFIER LPAREN ExprList RPAREN
+                        { $$ = new ast::CallExpr($1, $3, POS(@1)); }
 PrimaryExpr         : ICONST
                         { $$ = new ast::IntConst($1, POS(@1)); }            
                     | LPAREN Expr RPAREN

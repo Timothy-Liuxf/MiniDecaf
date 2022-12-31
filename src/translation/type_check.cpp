@@ -49,6 +49,7 @@ class SemPass2 : public ast::Visitor {
     virtual void visit(ast::NegExpr *);
     virtual void visit(ast::NotExpr *);
     virtual void visit(ast::BitNotExpr *);
+    virtual void visit(ast::CallExpr *);
     virtual void visit(ast::LvalueExpr *);
     virtual void visit(ast::VarRef *);
     // Visiting statements
@@ -332,6 +333,39 @@ void SemPass2::visit(ast::BitNotExpr *e) {
     e->ATTR(type) = BaseType::Int;
 }
 
+/* Visits an ast::CallExpr node.
+ *
+ * PARAMETERS:
+ *   e     - the ast::CallExpr node
+ */
+void SemPass2::visit(ast::CallExpr *e) {
+    Symbol *sym = scopes->lookup(e->func_name, e->getLocation());
+    if (NULL == sym) {
+        issue(e->getLocation(), new SymbolNotFoundError(e->func_name));
+        goto issue_error_type;
+    }
+    if (!sym->isFunction()) {
+        issue(e->getLocation(), new NotMethodError(sym));
+        goto issue_error_type;
+    }
+    {
+        Function *func = static_cast<Function *>(sym);
+        if (func->getType()->numOfParameters() != e->args->length()) {
+            issue(e->getLocation(), new BadArgCountError(func));
+            goto issue_error_type;
+        }
+
+        for (auto itr = e->args->begin(); itr != e->args->end(); ++itr) {
+            (*itr)->accept(this);
+        }
+        e->ATTR(type) = func->getResultType();
+        return;
+    }
+
+issue_error_type:
+    e->ATTR(type) = BaseType::Error;
+}
+
 /* Visits an ast::LvalueExpr node.
  *
  * PARAMETERS:
@@ -539,17 +573,19 @@ void SemPass2::visit(ast::ReturnStmt *s) {
 /* Visits an ast::FunDefn node.
  *
  * PARAMETERS:
- *   e     - the ast::FunDefn node
+ *   f     - the ast::FunDefn node
  */
 void SemPass2::visit(ast::FuncDefn *f) {
-    ast::StmtList::iterator it;
+    if (!f->forward_decl) {
+        ast::StmtList::iterator it;
 
-    retType = f->ret_type->ATTR(type);
+        retType = f->ret_type->ATTR(type);
 
-    scopes->open(f->ATTR(sym)->getAssociatedScope());
-    for (it = f->stmts->begin(); it != f->stmts->end(); ++it)
-        (*it)->accept(this);
-    scopes->close();
+        scopes->open(f->ATTR(sym)->getAssociatedScope());
+        for (it = f->stmts->begin(); it != f->stmts->end(); ++it)
+            (*it)->accept(this);
+        scopes->close();
+    }
 }
 
 /* Visits an ast::Program node.

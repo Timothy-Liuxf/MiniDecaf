@@ -454,6 +454,43 @@ Tac *Tac::BNot(Temp dest, Temp src) {
     return t;
 }
 
+/* Creates a Param tac.
+ *
+ * NOTE:
+ *   pass parameter
+ * PARAMETERS:
+ *   param - parameter
+ * RETURNS:
+ *   a Param tac
+ */
+Tac *Tac::Param(Temp param) {
+    REQUIRE_I4(param);
+
+    Tac *t = allocateNewTac(Tac::PARAM);
+    t->op0.var = param;
+
+    return t;
+}
+
+/* Creates a Call tac.
+ *
+ * NOTE:
+ *   call process
+ * PARAMETERS:
+ *   entry - entry label
+ * RETURNS:
+ *   a Call tac
+ */
+Tac *Tac::Call(Temp dest, Label entry) {
+    REQUIRE_I4(dest);
+
+    Tac *t = allocateNewTac(Tac::CALL);
+    t->op0.var = dest;
+    t->op1.label = entry;
+
+    return t;
+}
+
 /* Creates a LoadImm4 tac.
  *
  * NOTE:
@@ -714,6 +751,14 @@ void Tac::dump(std::ostream &os) {
 
     case BNOT:
         os << "    " << op0.var << " <- (~ " << op1.var << ")";
+        break;
+
+    case PARAM:
+        os << "    param  " << op0.var;
+        break;
+
+    case CALL:
+        os << "    " << op0.var << " <- call " << op1.label;
         break;
 
     case MARK:

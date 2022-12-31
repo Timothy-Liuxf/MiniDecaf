@@ -58,6 +58,10 @@ class TransHelper {
     Temp genLNot(Temp);
     // Bitwise
     Temp genBNot(Temp);
+    // Param
+    void genParam(Temp);
+    // Call
+    Temp genCall(Label);
     // Memory Access
     Temp genPop(void);
     void genPush(Temp);

@@ -393,6 +393,28 @@ Temp TransHelper::genBNot(Temp src) {
     return c;
 }
 
+/* Appends a Param tac node to the current list.
+ *
+ * PARAMETERS:
+ *   param  - operand
+ * RETURNS:
+ *   void
+ */
+void TransHelper::genParam(Temp param) { chainUp(Tac::Param(param)); }
+
+/* Appends a Call tac node to the current list.
+ *
+ * PARAMETERS:
+ *   entry  - the entry label of the function to be called
+ * RETURNS:
+ *   the temporary containing the return value of the function call
+ */
+Temp TransHelper::genCall(Label entry) {
+    Temp c = getNewTempI4();
+    chainUp(Tac::Call(c, entry));
+    return c;
+}
+
 /* Appends a Pop tac node to the current list.
  *
  * RETURNS:

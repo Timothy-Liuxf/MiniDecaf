@@ -39,9 +39,11 @@ Translation::Translation(tac::TransHelper *helper) {
 /* Translating an ast::Program node.
  */
 void Translation::visit(ast::Program *p) {
+    scopes->open(p->ATTR(gscope));
     for (auto it = p->func_and_globals->begin();
          it != p->func_and_globals->end(); ++it)
         (*it)->accept(this);
+    scopes->close();
 }
 
 // three sugars for parameter offset management
@@ -59,6 +61,12 @@ void Translation::visit(ast::FuncDefn *f) {
 
     // attaching function entry label
     fun->attachEntryLabel(tr->getNewEntryLabel(fun));
+
+    if (f->forward_decl) {
+        return;
+    }
+
+    scopes->open(fun->getAssociatedScope());
 
     // arguments
     int order = 0;
@@ -83,6 +91,8 @@ void Translation::visit(ast::FuncDefn *f) {
     tr->genReturn(tr->genLoadImm4(0)); // Return 0 by default
 
     tr->endFunc();
+
+    scopes->close();
 }
 
 /* Translating an ast::ExprStmt node.
@@ -136,6 +146,8 @@ void Translation::visit(ast::WhileStmt *s) {
 /* Translating an ast::ForStmt node.
  */
 void Translation::visit(ast::ForStmt *s) {
+    scopes->open(s->ATTR(scope));
+
     s->init->accept(this);
 
     Label L1 = tr->getNewLabel();
@@ -162,6 +174,8 @@ void Translation::visit(ast::ForStmt *s) {
 
     current_continue_label = old_continue;
     current_break_label = old_break;
+
+    scopes->close();
 }
 
 /* Translating an ast::DoStmt node.
@@ -213,9 +227,11 @@ void Translation::visit(ast::ContStmt *s) {
 /* Translating an ast::CompStmt node.
  */
 void Translation::visit(ast::CompStmt *c) {
+    scopes->open(c->ATTR(scope));
     // translates statement by statement
     for (auto it = c->stmts->begin(); it != c->stmts->end(); ++it)
         (*it)->accept(this);
+    scopes->close();
 }
 /* Translating an ast::ReturnStmt node.
  */
@@ -406,6 +422,19 @@ void Translation::visit(ast::BitNotExpr *e) {
     e->e->accept(this);
 
     e->ATTR(val) = tr->genBNot(e->e->ATTR(val));
+}
+
+/* Translating an ast::CallExpr node.
+ */
+void Translation::visit(ast::CallExpr *e) {
+    for (auto itr = e->args->begin(); itr != e->args->end(); ++itr) {
+        (*itr)->accept(this);
+        tr->genParam((*itr)->ATTR(val));
+    }
+
+    Function *func =
+        static_cast<Function *>(scopes->lookup(e->func_name, e->getLocation()));
+    e->ATTR(val) = tr->genCall(func->getEntryLabel());
 }
 
 /* Translating an ast::LvalueExpr node.

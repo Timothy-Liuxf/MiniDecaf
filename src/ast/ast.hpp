@@ -37,7 +37,6 @@ class ASTNode {
         BIT_NOT_EXPR,
         BOOL_TYPE,
         BREAK_STMT,
-        CONT_STMT,
         CALL_EXPR,
         COMP_STMT,
         DIV_EXPR,
@@ -67,7 +66,8 @@ class ASTNode {
         VAR_REF,
         WHILE_STMT,
         FOD,
-        FOR_STMT
+        FOR_STMT,
+        CONT_STMT
     } NodeType;
 
   protected:
@@ -363,6 +363,7 @@ class CompStmt : public Statement {
 
     scope::Scope *ATTR(scope);
 };
+
 /* Node representing an if statement.
  *
  * SERIALIZED FORM:
@@ -788,6 +789,22 @@ class BitNotExpr : public Expr {
 
   public:
     Expr *e;
+};
+/* Node representing a function call expression.
+ *
+ * SERIALIZED FORM:
+ *   (call NAME EXPR)
+ */
+class CallExpr : public Expr {
+  public:
+    CallExpr(std::string func_name, ExprList *args, Location *l);
+
+    virtual void accept(Visitor *);
+    virtual void dumpTo(std::ostream &);
+
+  public:
+    std::string func_name;
+    ExprList *args;
 };
 extern bool print_decorated_ast;
 } // namespace ast

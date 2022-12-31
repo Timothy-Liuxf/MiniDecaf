@@ -131,6 +131,8 @@ class Function : public Symbol {
     virtual bool isFunction(void);
     // Prints this symbol
     virtual void dump(std::ostream &os);
+    // Is decl
+    bool is_decl;
 
   public:
     // Attaches a Functy object to this symbol

@@ -87,15 +87,7 @@ void SemPass1::visit(ast::FuncDefn *fdef) {
 
     Function *f = new Function(fdef->name, t, fdef->getLocation());
     fdef->ATTR(sym) = f;
-
-    // checks the Declaration Conflict Error of Case 1 (but don't check Case
-    // 2,3). if DeclConflictError occurs, we don't put the symbol into the
-    // symbol table
-    Symbol *sym = scopes->lookup(fdef->name, fdef->getLocation(), false);
-    if (NULL != sym)
-        issue(fdef->getLocation(), new DeclConflictError(fdef->name, sym));
-    else
-        scopes->declare(f);
+    f->is_decl = fdef->forward_decl;
 
     // opens function scope
     scopes->open(f->getAssociatedScope());
@@ -107,12 +99,42 @@ void SemPass1::visit(ast::FuncDefn *fdef) {
         f->appendParameter((*it)->ATTR(sym));
     }
 
-    // adds the local variables
-    for (auto it = fdef->stmts->begin(); it != fdef->stmts->end(); ++it)
-        (*it)->accept(this);
-
-    // closes function scope
     scopes->close();
+
+    // checks the Declaration Conflict Error of Case 1 (but don't check Case
+    // 2,3). if DeclConflictError occurs, we don't put the symbol into the
+    // symbol table
+    Symbol *sym = scopes->lookup(fdef->name, fdef->getLocation(), false);
+    if (NULL != sym) {
+        if (!sym->isFunction()) {
+            issue(fdef->getLocation(),
+                  new IncompatibleError(f->getType(), sym->getType()));
+        } else {
+            Function *org_func = static_cast<Function *>(sym);
+            if (!f->getType()->compatible(org_func->getType())) {
+                issue(fdef->getLocation(),
+                      new DeclConflictError(fdef->name, org_func));
+            } else if (!f->is_decl && !org_func->is_decl) {
+                issue(fdef->getLocation(),
+                      new DeclConflictError(fdef->name, sym));
+            } else if (!f->is_decl) {
+                scopes->declare(f);
+            }
+        }
+    } else {
+        scopes->declare(f);
+    }
+
+    if (!f->is_decl) {
+        scopes->open(f->getAssociatedScope());
+
+        // adds the local variables
+        for (auto it = fdef->stmts->begin(); it != fdef->stmts->end(); ++it)
+            (*it)->accept(this);
+
+        // closes function scope
+        scopes->close();
+    }
 }
 
 /* Visits an ast::IfStmt node.
