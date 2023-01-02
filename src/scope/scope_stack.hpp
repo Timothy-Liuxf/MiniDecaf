@@ -15,6 +15,8 @@
 #include "define.hpp"
 #include "scope/scope.hpp"
 
+#include <unordered_set>
+
 namespace mind {
 
 #define MIND_SCOPESTACK_DEFIINED
@@ -31,6 +33,8 @@ class ScopeStack {
     util::Stack<Scope *> _stack;
     // a track of the global scope
     Scope *_global;
+    // global var loaded map
+    std::unordered_set<symb::Variable *> _global_vars;
 
   public:
     // Constructor
@@ -47,6 +51,10 @@ class ScopeStack {
     Scope *top(void);
     // Looks up the topmost scope of a specific kind
     Scope *lookForScope(Scope::kind_t kind);
+    // Add global var
+    void AddGlobalVar(symb::Variable *name);
+    // Get global vars
+    std::unordered_set<symb::Variable *> &GetGlobalVars();
 };
 } // namespace scope
 } // namespace mind

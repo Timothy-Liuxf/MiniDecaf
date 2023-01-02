@@ -46,6 +46,7 @@ void BasicBlock::computeDefAndLiveUse(void) {
         case Tac::NEG:
         case Tac::LNOT:
         case Tac::BNOT:
+        case Tac::LOAD_MEM:
             updateLU(t->op1.var);
             updateDEF(t->op0.var);
             break;
@@ -72,6 +73,7 @@ void BasicBlock::computeDefAndLiveUse(void) {
         case Tac::LOAD_IMM4:
         case Tac::CALL:
         case Tac::PARAM:
+        case Tac::LOAD_SYM:
             updateDEF(t->op0.var);
             break;
 
@@ -196,6 +198,7 @@ void BasicBlock::analyzeLiveness(void) {
         case Tac::NEG:
         case Tac::LNOT:
         case Tac::BNOT:
+        case Tac::LOAD_MEM:
             if (NULL != t_next->op0.var)
                 t->LiveOut->remove(t_next->op0.var);
             t->LiveOut->add(t_next->op1.var);
@@ -224,6 +227,7 @@ void BasicBlock::analyzeLiveness(void) {
         case Tac::LOAD_IMM4:
         case Tac::CALL:
         case Tac::PARAM:
+        case Tac::LOAD_SYM:
             if (NULL != t_next->op0.var)
                 t->LiveOut->remove(t_next->op0.var);
             break;

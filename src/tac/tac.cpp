@@ -638,6 +638,47 @@ Tac *Tac::Mark(Label label) {
     return t;
 }
 
+/* Creates a LoadSym tac.
+ *
+ * NOTE:
+ *   load symbol
+ * PARAMETERS:
+ *   dest - result
+ *   sym  - symbol
+ * RETURNS:
+ *   a LoadSym tac
+ */
+Tac *Tac::LoadSym(Temp dest, Label sym) {
+    REQUIRE_I4(dest);
+
+    Tac *t = allocateNewTac(Tac::LOAD_SYM);
+    t->op0.var = dest;
+    t->op1.label = sym;
+
+    return t;
+}
+
+/* Creates a LoadMem tac.
+ *
+ * NOTE:
+ *   load memory
+ * PARAMETERS:
+ *   dest - result
+ *   addr - address
+ * RETURNS:
+ *   a LoadMem tac
+ */
+Tac *Tac::LoadMem(Temp dest, Temp addr) {
+    REQUIRE_I4(dest);
+    REQUIRE_I4(addr);
+
+    Tac *t = allocateNewTac(Tac::LOAD_MEM);
+    t->op0.var = dest;
+    t->op1.var = addr;
+
+    return t;
+}
+
 /* Outputs a temporary variable.
  *
  * PARAMETERS:
@@ -812,6 +853,14 @@ void Tac::dump(std::ostream &os) {
 
     case LOAD_IMM4:
         os << "    " << op0.var << " <- " << op1.ival;
+        break;
+
+    case LOAD_SYM:
+        os << "    " << op0.var << " <- " << op1.label;
+        break;
+
+    case LOAD_MEM:
+        os << "    " << op0.var << " <- *" << op1.var;
         break;
 
     default:

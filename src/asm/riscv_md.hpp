@@ -114,6 +114,7 @@ struct RiscvInstr : public Instr {
         ASSIGN,
         ADDI,
         CALL,
+        LA,
         // You could add other instructions/pseudo instructions here
     } op_code; // operation code
 
@@ -173,6 +174,10 @@ class RiscvDesc : public MachineDesc {
     void emitParamTac(tac::Tac *);
     // translates a Call TAC into assembly instructions
     void emitCallTac(tac::Tac *);
+    // translate a LoadSym TAC into assembly instructions
+    void emitLoadSymTac(tac::Tac *);
+    // translate a LoadMem TAC into assembly instructions
+    void emitLoadMemTac(tac::Tac *);
 
     // outputs an instruction
     void emit(std::string, const char *, const char *);

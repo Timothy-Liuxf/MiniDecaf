@@ -27,6 +27,7 @@ VarDecl::VarDecl(std::string n, Type *t, Location *l) {
     name = n;
     type = t;
     init = NULL;
+    is_global_init = false;
 }
 
 VarDecl::VarDecl(std::string n, Type *t, Expr *i, Location *l) {
@@ -35,6 +36,7 @@ VarDecl::VarDecl(std::string n, Type *t, Expr *i, Location *l) {
     name = n;
     type = t;
     init = i;
+    is_global_init = false;
 }
 
 VarDecl::VarDecl(std::string n, Type *t, int d, Location *l) {
@@ -44,6 +46,8 @@ VarDecl::VarDecl(std::string n, Type *t, int d, Location *l) {
     name = n;
     type = t;
     init = NULL;
+    is_global_init = true;
+    global_init = d;
 }
 
 /* Visits the current node.

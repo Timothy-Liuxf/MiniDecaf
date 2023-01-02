@@ -57,6 +57,17 @@ typedef struct FunctyObject {
     Tac *code;   // tac chain of the function
 } * Functy;
 
+/** Representation of a static storage duration object
+ *
+ *  NOTE: Don't use "StaticObject" directly. Please use "Static".
+ */
+typedef struct StaticObject {
+    Label label;    // name of the global object
+    int size;       // size of the global object
+    int init_val;   // initial value of the global object
+    bool tentitive; // whether it's declared with a tentitive definition
+} * Static;
+
 /** Three address code.
  *
  *  NOTE: We use "struct" instead of "class" here for your convenience.
@@ -97,7 +108,9 @@ struct Tac {
         POP,
         RETURN,
         LOAD_IMM4,
-        MEMO
+        MEMO,
+        LOAD_SYM,
+        LOAD_MEM,
     } Kind;
 
     // Operand type
@@ -152,6 +165,8 @@ struct Tac {
     static Tac *Return(Temp value);
     static Tac *Mark(Label label);
     static Tac *Memo(const char *);
+    static Tac *LoadSym(Temp dest, Label sym);
+    static Tac *LoadMem(Temp dest, Temp addr);
 
     // dumps a single tac node to some output stream
     void dump(std::ostream &);
@@ -171,11 +186,13 @@ struct Piece {
     // kind of this Piece node
     enum {
         FUNCTY,
+        GLOBL,
     } kind;
 
     // data of this Piece node
     union {
         Functy functy;
+        Static globl;
     } as;
 
     // next Piece node

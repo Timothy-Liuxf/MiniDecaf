@@ -114,3 +114,17 @@ void Variable::attachTemp(tac::Temp v) {
  *   the attached register object
  */
 Temp Variable::getTemp(void) { return attached; }
+
+/* Gets the associated static object.
+ *
+ * RETURNS:
+ *   the associated static object
+ */
+Static Variable::getStatic(void) { return static_obj; }
+
+/* Sets the associated static object.
+ *
+ * PARAMETERS:
+ *   s     - the static object
+ */
+void Variable::attachStatic(Static s) { static_obj = s; }

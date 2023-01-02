@@ -96,7 +96,7 @@ void scan_end();
 %nterm<mind::ast::Program*> Program FoDList
 %nterm<mind::ast::FuncDefn*> FuncDefn
 %nterm<mind::ast::Type*> Type
-%nterm<mind::ast::VarDecl*> VarDecl
+%nterm<mind::ast::VarDecl*> VarDecl GlobalVarDecl
 %nterm<mind::ast::CompStmt*> CompStmt
 %nterm<mind::ast::Statement*> Stmt ReturnStmt ExprStmt IfStmt WhileStmt ForStmt DoStmt
 %nterm<mind::ast::Statement*> BlockItem
@@ -127,14 +127,27 @@ Program             : FoDList
                         { /* we don't write $$ = XXX here. */
 			        	  setParseTree($1); }
                     ;
-FoDList             :           
+FoDList             :
+                    GlobalVarDecl
+                        {$$ = new ast::Program($1,POS(@1)); } |
                     FuncDefn 
                         {$$ = new ast::Program($1,POS(@1)); } |
                     FoDList FuncDefn{
                          {$1->func_and_globals->append($2);
                           $$ = $1; }
+                        } |
+                    FoDList GlobalVarDecl{
+                         {$1->func_and_globals->append($2);
+                          $$ = $1; }
                         }
-
+                    ;
+GlobalVarDecl       : Type IDENTIFIER SEMICOLON{
+                        $$ = new ast::VarDecl($2,$1,POS(@1));
+                    }
+                    | Type IDENTIFIER ASSIGN ICONST SEMICOLON{
+                        $$ = new ast::VarDecl($2,$1,$4,POS(@1));
+                    }
+                    ;
 FuncDefn            : Type IDENTIFIER LPAREN FormalList RPAREN CompStmt {
                         $$ = new ast::FuncDefn($2,$1,$4,$6->stmts,POS(@1));
                         delete $6;
@@ -142,6 +155,7 @@ FuncDefn            : Type IDENTIFIER LPAREN FormalList RPAREN CompStmt {
                     Type IDENTIFIER LPAREN FormalList RPAREN SEMICOLON{
                         $$ = new ast::FuncDefn($2,$1,$4,new ast::EmptyStmt(POS(@6)),POS(@1));
                     }
+                    ;
 FormalList          : ParamList
                         {$$ = $1;}
                     | /* EMPTY */

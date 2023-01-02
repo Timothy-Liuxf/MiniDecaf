@@ -77,6 +77,8 @@ class Variable : public Symbol {
     tac::Temp attached;
     // init value for global variable
     int global_init;
+    // the associated static object
+    tac::Static static_obj;
 
   public:
     // Constructor
@@ -101,6 +103,12 @@ class Variable : public Symbol {
     void attachTemp(tac::Temp);
     // Gets the attached register object
     tac::Temp getTemp(void);
+
+  public:
+    // Attaches a static object to this symbol
+    void attachStatic(tac::Static);
+    // Gets the attached static object
+    tac::Static getStatic(void);
 };
 
 /* Function Definition.

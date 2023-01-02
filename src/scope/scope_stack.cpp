@@ -120,3 +120,9 @@ Scope *ScopeStack::lookForScope(Scope::kind_t kind) {
 
     return NULL;
 }
+
+void ScopeStack::AddGlobalVar(symb::Variable *v) { _global_vars.insert(v); }
+
+std::unordered_set<symb::Variable *> &ScopeStack::GetGlobalVars() {
+    return _global_vars;
+}

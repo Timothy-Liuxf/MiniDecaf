@@ -89,6 +89,13 @@ void Translation::visit(ast::FuncDefn *f) {
         tr->genParam((*it)->ATTR(sym)->getTemp());
     }
 
+    // Load global variables
+    for (auto globals : scopes->GetGlobalVars()) {
+        Temp addr = tr->genLoadSym(globals->getStatic()->label);
+        Temp val = tr->genLoadMem(addr);
+        tr->genAssign(globals->getTemp(), val);
+    }
+
     // translates statement by statement
     for (auto it = f->stmts->begin(); it != f->stmts->end(); ++it)
         (*it)->accept(this);
@@ -479,9 +486,23 @@ void Translation::visit(ast::VarRef *ref) {
 void Translation::visit(ast::VarDecl *decl) {
     // TODO
     decl->ATTR(sym)->attachTemp(tr->getNewTempI4());
-    if (decl->init) {
-        decl->init->accept(this);
-        tr->genAssign(decl->ATTR(sym)->getTemp(), decl->init->ATTR(val));
+    if (!decl->ATTR(sym)->isGlobalVar()) {
+        if (decl->init) {
+            decl->init->accept(this);
+            tr->genAssign(decl->ATTR(sym)->getTemp(), decl->init->ATTR(val));
+        }
+    } else {
+        Static static_obj = new StaticObject();
+        static_obj->label = tr->getNewVarLabel(decl->ATTR(sym)->getName());
+        static_obj->size = 4;
+        if (decl->is_global_init) {
+            static_obj->tentitive = false;
+            static_obj->init_val = decl->ATTR(sym)->getGlobalInit();
+        } else {
+            static_obj->tentitive = true;
+        }
+        decl->ATTR(sym)->attachStatic(static_obj);
+        tr->regGlobal(decl->ATTR(sym), static_obj);
     }
 }
 

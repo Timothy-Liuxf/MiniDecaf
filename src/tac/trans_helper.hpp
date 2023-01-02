@@ -32,12 +32,16 @@ class TransHelper {
     Temp getNewTempI4(void);
     // allocates a new label
     Label getNewLabel(void);
+    // allocates a new static object label
+    Label getNewVarLabel(std::string);
     // allocates a new entry Label object for function
     Label getNewEntryLabel(symb::Function *);
     // starts to translate a function
     void startFunc(symb::Function *);
     // ends translating a function
     void endFunc(void);
+    // register global variable
+    void regGlobal(symb::Variable *, Static);
 
     // Arithmetic
     Temp genAdd(Temp, Temp);
@@ -76,6 +80,9 @@ class TransHelper {
     Temp genLoadImm4(int);
     void genMarkLabel(Label);
     void genMemo(const char *);
+    // Memory Access
+    Temp genLoadSym(Label);
+    Temp genLoadMem(Temp);
 
     // gets the entire Piece list
     Piece *getPiece();

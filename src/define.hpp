@@ -114,10 +114,12 @@ struct TempObject;
 struct LabelObject;
 struct VTableObject;
 struct FunctyObject;
+struct StaticObject;
 typedef struct TempObject *Temp;
 typedef struct LabelObject *Label;
 typedef struct VTableObject *VTable;
 typedef struct FunctyObject *Functy;
+typedef struct StaticObject *Static;
 
 struct Tac;
 struct Piece;

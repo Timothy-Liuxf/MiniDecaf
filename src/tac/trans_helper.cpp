@@ -97,6 +97,24 @@ Label TransHelper::getNewLabel(void) {
     return l;
 }
 
+/* Allocates a new static object label.
+ *
+ * PARAMETERS:
+ *  name - the name of the static object
+ * RETURNS:
+ *   the newly created label
+ * NOTE:
+ *   we use the label index to avoid name crash.
+ */
+Label TransHelper::getNewVarLabel(std::string name) {
+    Label l = new LabelObject();
+    l->id = label_count++;
+    l->str_form = name;
+    l->target = false;
+
+    return l;
+}
+
 /* Creates a new Label object for the function entry.
  *
  * PARAMETERS:
@@ -170,6 +188,21 @@ void TransHelper::endFunc(void) {
     tacs = tacs_tail = NULL;
     current->attachFuncty(ptail->as.functy);
     current = NULL;
+}
+
+/* Register global variables.
+ *
+ * PARAMETERS:
+ *   g    - the global variable
+ * NOTE:
+ *   the newly created Globl object will be chained up into the Piece list
+ */
+void TransHelper::regGlobal(symb::Variable *g, Static static_obj) {
+    mind_assert(NULL != g);
+
+    ptail = ptail->next = new Piece();
+    ptail->kind = Piece::GLOBL;
+    ptail->as.globl = static_obj;
 }
 
 /* Appends an Add tac node to the current list.
@@ -512,6 +545,33 @@ void TransHelper::genMarkLabel(Label label) { chainUp(Tac::Mark(label)); }
  * "This is comment") NOTE: memorandum can serve as comment in TAC sequence
  */
 void TransHelper::genMemo(const char *comment) { chainUp(Tac::Memo(comment)); }
+
+/* Appends a LoadSym tac node to the current list.
+ *
+ * PARAMETERS:
+ *   sym - the symbol to be loaded
+ * NOTE:
+ *   this operation loads the address of the symbol into the target variable
+ */
+Temp TransHelper::genLoadSym(Label sym) {
+    Temp c = getNewTempI4();
+    chainUp(Tac::LoadSym(c, sym));
+    return c;
+}
+
+/* Appends a LoadMem tac node to the current list.
+ *
+ * PARAMETERS:
+ *   addr - the address of the memory to be loaded
+ * NOTE:
+ *   this operation loads the value from the memory address stored in src into
+ * dest
+ */
+Temp TransHelper::genLoadMem(Temp addr) {
+    Temp c = getNewTempI4();
+    chainUp(Tac::LoadMem(c, addr));
+    return c;
+}
 
 /* Retrieves the entire Piece list.
  *

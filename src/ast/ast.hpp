@@ -191,6 +191,8 @@ class VarDecl : public Statement {
     std::string name;
     Type *type;
     Expr *init;
+    int global_init;
+    bool is_global_init;
 
     symb::Variable *ATTR(sym); // for semantic analysis
 };

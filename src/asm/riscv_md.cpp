@@ -302,6 +302,14 @@ void RiscvDesc::emitTac(Tac *t) {
         emitCallTac(t);
         break;
 
+    case Tac::LOAD_SYM:
+        emitLoadSymTac(t);
+        break;
+
+    case Tac::LOAD_MEM:
+        emitLoadMemTac(t);
+        break;
+
     default:
         mind_assert(false); // should not appear inside a basic block
     }
@@ -474,6 +482,18 @@ void RiscvDesc::emitCallTac(Tac *t) {
         addInstr(RiscvInstr::LW, _reg[RiscvReg::A0], _reg[RiscvReg::SP], NULL,
                  0, EMPTY_STR, NULL);
     }
+}
+
+void RiscvDesc::emitLoadSymTac(Tac *t) {
+    auto r0 = getRegForWrite(t->op0.var, 0, 0, t->LiveOut);
+    addInstr(RiscvInstr::LA, _reg[r0], NULL, NULL, 0, t->op1.label->str_form,
+             NULL);
+}
+
+void RiscvDesc::emitLoadMemTac(Tac *t) {
+    int r1 = getRegForRead(t->op1.var, 0, t->LiveOut);
+    int r0 = getRegForWrite(t->op0.var, r1, 0, t->LiveOut);
+    addInstr(RiscvInstr::LW, _reg[r0], _reg[r1], NULL, 0, EMPTY_STR, NULL);
 }
 
 /* Outputs a single instruction line.
@@ -776,6 +796,10 @@ void RiscvDesc::emitInstr(RiscvInstr *i) {
 
     case RiscvInstr::CALL:
         oss << "call _" << i->l;
+        break;
+
+    case RiscvInstr::LA:
+        oss << "la" << i->r0->name << ", " << i->l;
         break;
 
     default:

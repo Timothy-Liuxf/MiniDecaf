@@ -235,8 +235,15 @@ void SemPass1::visit(ast::VarDecl *vdecl) {
         scopes->declare(v);
 
     // TODO: Special processing for global variables
+    if (vdecl->is_global_init) {
+        v->setGlobalInit(vdecl->global_init);
+    }
 
     vdecl->ATTR(sym) = v;
+
+    if (v->isGlobalVar()) {
+        scopes->AddGlobalVar(v);
+    }
 }
 
 /* Visiting an ast::IntType node.
