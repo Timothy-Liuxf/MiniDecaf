@@ -126,6 +126,10 @@ void RiscvDesc::emitPieces(scope::GlobalScope *gscope, Piece *ps,
             this->_currentLoadedParam = 0; // reset the counter of params
             break;
 
+        case Piece::GLOBL:
+            emitGlobl(ps->as.globl);
+            break;
+
         default:
             mind_assert(false); // unreachable
             break;
@@ -615,6 +619,26 @@ void RiscvDesc::emitFuncty(Functy f) {
     //           -- Modern Compiler Implementation in Java (the ``Tiger Book'')
     for (FlowGraph::iterator it = g->begin(); it != g->end(); ++it)
         emitTrace(*it, g);
+}
+
+void RiscvDesc::emitGlobl(Static globl) {
+    if (globl->tentitive) {
+        emit(EMPTY_STR, ".bss", NULL);
+        emit(EMPTY_STR,
+             (std::string(".globl ") + globl->label->str_form).c_str(), NULL);
+        emit(EMPTY_STR, ".align 4", NULL);
+        emit(globl->label->str_form.c_str(), NULL, NULL);
+        emit(EMPTY_STR, ".space 4", NULL);
+    } else {
+        emit(EMPTY_STR, ".data", NULL);
+        emit(EMPTY_STR,
+             (std::string(".globl ") + globl->label->str_form).c_str(), NULL);
+        emit(EMPTY_STR, ".align 4", NULL);
+        emit(globl->label->str_form.c_str(), NULL, NULL);
+        emit(EMPTY_STR,
+             (std::string(".word ") + std::to_string(globl->init_val)).c_str(),
+             NULL);
+    }
 }
 
 /* Outputs the leading code of a function.

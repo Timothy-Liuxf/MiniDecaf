@@ -183,6 +183,8 @@ class RiscvDesc : public MachineDesc {
     void emit(std::string, const char *, const char *);
     // outputs a function
     void emitFuncty(tac::Functy);
+    // outputs a global variable
+    void emitGlobl(tac::Static);
     // prints the leading code of a function
     void emitProlog(tac::Label, int);
     // prints the assembly code of a single trace
