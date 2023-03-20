@@ -4,7 +4,7 @@
 
 ### 写在前面的
 
-本代码为 2022 年编译原理实验 C++ 框架代码，仅供参考。实验指导书的 fork 版本参见 [minidecaf-tutorial](https://github.com/Timothy-Liuxf/minidecaf-tutorial)。
+本代码为 2022 年编译原理实验 C++ 框架代码，仅供参考。实验指导书的 fork 版本参见 [minidecaf-tutorial (forked)](https://timothy-liuxf.github.io/minidecaf-tutorial/)。
 
 本来是有 6 个 stage 的（按顺序依次为 stage-1、stage-2、parser-stage、stage-3、stage-4、stage-5），前四个是必做，后两个是选做。其中前四个都给了框架，自己加一些代码就好，后两个完全没有给任何框架全要自己写，工作量爆炸 orz。到最后由于距离考试只剩三天了而且还没有复习，就只做了 stage 4 一个选做，stage 5 就鸽掉了 QAQ（本来还想之后的寒假补上，结果果不其然也鸽掉了 x）。
 
